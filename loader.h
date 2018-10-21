@@ -7,7 +7,6 @@
 
 #include "model.h"
 
-struct WORLD_TREE* load_test_world();
 
 
 #endif //WORLD_LOADER_H

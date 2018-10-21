@@ -53,21 +53,20 @@ struct WORLD_TREE{
     struct WORLD_BLOCK* root;
 };
 
-///
-/// \param tree
-/// \param block
-void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node);
-
-
 struct WORLD_BLOCK_QUERY_RESULT{
     struct WORLD_BLOCK* result;
 };
-
 
 typedef struct {
     void* pvertices;
     void* pindices;
 }BUFFERDATA;
+
+///
+/// \param tree
+/// \param block
+void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node);
+
 
 ///
 /// \param root
@@ -93,6 +92,7 @@ void query_block(struct WORLD_TREE* tree, int x, int y, int z, int level);
 /// \param config
 void get_cube_transform(struct WORLD_CUBE_TRANSFORM* transform, struct WORLD_BLOCK* block, struct WORLD_SIZE_CONFIG* config);
 
+int get_index(int x, int y, int z, int level);
 
 struct WORLD_BLOCK* create_block(int x, int y, int z, int level);
 

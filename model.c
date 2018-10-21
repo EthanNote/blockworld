@@ -13,7 +13,17 @@ void get_cube_transform(struct WORLD_CUBE_TRANSFORM* transform, struct WORLD_BLO
     transform->size=config->min_distance*(0x1<<block->level);
 }
 
-#define INDEX(x, y, z, level)
+//#define INDEX(x, y, z, level) (((x)>>(level))&0x01)|(((y)>>((level)-1))&0x02)|(((z)>>((level)-2))&0x04)
+
+int get_index(int x, int y, int z, int level){
+//    return (((x)>>(level))&0x01)|(((y)>>((level)-1))&0x02)|(((z)>>((level)-2))&0x04);
+    int bitmask=1<<level;
+    int bx=(x & bitmask)>>level;
+    int by=(y & bitmask)>>level;
+    int bz=(z & bitmask)>>level;
+    int result=bx|by<<1|bz<<2;
+    return result;
+}
 
 struct WORLD_BLOCK* find_child_block(struct WORLD_BLOCK* block, int x, int y, int z, int level){
     int next_level=block->level-1;
@@ -65,19 +75,30 @@ void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node){
     if(tree->level<=node->level)
         return;
 
-    if(node->position.x >=tree->position.x && node->position.x>>1 < tree->position.x &&
-       node->position.y >=tree->position.y && node->position.y>>1 < tree->position.y &&
-       node->position.z >=tree->position.z && node->position.z>>1 < tree->position.z){
+    if(node->position.x >=tree->position.x && node->position.x < tree->position.x | (0x01<<(tree->level-1)) &&
+       node->position.y >=tree->position.y && node->position.y < tree->position.y | (0x01<<(tree->level-1)) &&
+       node->position.z >=tree->position.z && node->position.z < tree->position.z | (0x01<<(tree->level-1))){
 
     }
     else{
+
         return;
     }
 
-    int current_level=tree->level;
     struct WORLD_BLOCK* current_node=tree;
     while (current_node->level - node->level>1){
+        int index=get_index(node->position.x, node->position.y, node->position.z, current_node->level-1);
 
+        if(!current_node->children[index]){
+            int level_mask=LEVELMASK(current_node->level-1);
+            current_node->children[index]=create_block(node->position.x & level_mask, node->position.y & level_mask, node->position.z & level_mask, current_node->level-1);
+
+        }
+        current_node=current_node->children[index];
+    }
+    int index=get_index(node->position.x, node->position.y, node->position.z, current_node->level-1);
+    if(!current_node->children[index]){
+        current_node->children[index]=node;
     }
 
 }
