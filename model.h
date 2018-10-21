@@ -6,50 +6,62 @@
 #define WORLD_MODEL_H
 
 #include <stdbool.h>
-#include <rpcndr.h>
 
-typedef struct {
+
+struct VECTOR3I{
     int x;
     int y;
     int z;
-}VECTOR3I;
+};
 
-typedef struct {
+struct BLOCK_VISUAL_EFFECT{
     bool is_solid;
-    byte visible_faces;
+    unsigned char visible_faces;
     int material;
-}BLOCK_VISUAL_EFFECT;
+};
 
-typedef struct {
-    VECTOR3I position;
-    BLOCK_VISUAL_EFFECT visual_effect;
+struct WORLD_BLOCK
+{
+    struct VECTOR3I position;
+    struct BLOCK_VISUAL_EFFECT visual_effect;
     int level;
     int type;
-}WORLD_BLOCK;
 
-typedef struct {
+    struct WORLD_BLOCK* parent;
+    struct WORLD_BLOCK* children[8];
+    int index;
+
+};
+
+struct WORLD_CUBE_TRANSFORM{
     float px;
     float py;
     float pz;
     float size;
-}WORLD_CUBE_TRANSFORM;
+};
 
-typedef struct {
-    float maxRange;
-}WORLD_SIZE_CONFIG;
+struct WORLD_SIZE_CONFIG{
+    float max_distance;
+    float min_distance;
+    int max_index;
+    int max_level;
+};
 
 
-void get_cube_transform(WORLD_CUBE_TRANSFORM* transform, WORLD_BLOCK* block, WORLD_SIZE_CONFIG* config);
 
-typedef struct {
-    WORLD_BLOCK* root;
-}WORLD_TREE;
+struct WORLD_TREE{
+    struct WORLD_BLOCK* root;
+};
 
-void insert_block(WORLD_TREE* tree, WORLD_BLOCK* block);
+///
+/// \param tree
+/// \param block
+void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node);
 
-typedef struct {
-    WORLD_BLOCK* result;
-}WORLD_BLOCK_QUERY_RESULT;
+
+struct WORLD_BLOCK_QUERY_RESULT{
+    struct WORLD_BLOCK* result;
+};
 
 
 typedef struct {
@@ -57,9 +69,33 @@ typedef struct {
     void* pindices;
 }BUFFERDATA;
 
-BUFFERDATA* calc_buffer_data(WORLD_TREE* root);
-void* calc_visible_faces(WORLD_BLOCK* node);
+///
+/// \param root
+/// \return
+BUFFERDATA* calc_buffer_data(struct WORLD_TREE* root);
 
-void query_block(WORLD_TREE* tree, int x, int y, int z, int level);
+///
+/// \param node
+/// \return
+void* calc_visible_faces(struct WORLD_BLOCK* node);
+
+///
+/// \param tree
+/// \param x
+/// \param y
+/// \param z
+/// \param level
+void query_block(struct WORLD_TREE* tree, int x, int y, int z, int level);
+
+///
+/// \param transform
+/// \param block
+/// \param config
+void get_cube_transform(struct WORLD_CUBE_TRANSFORM* transform, struct WORLD_BLOCK* block, struct WORLD_SIZE_CONFIG* config);
+
+
+struct WORLD_BLOCK* create_block(int x, int y, int z, int level);
 
 #endif //WORLD_MODEL_H
+
+
