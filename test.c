@@ -20,6 +20,9 @@ int main(){
     struct WORLD_TREE* world_tree = load_test_world();
     struct WORLD_BLOCK* testblock=create_block(0,1,2,0);
     insert_block(world_tree->root, testblock);
+
+    dump_world(world_tree, "world.json");
+
     return 0;
 }
 

@@ -7,6 +7,11 @@
 
 #include "model.h"
 
+#include "cJSON/cJSON.h"
+
+void load_world(struct WORLD_TREE* world_tree, const char* fname);
+
+void dump_world(struct WORLD_TREE* world_tree, const char* fname);
 
 
 #endif //WORLD_LOADER_H
