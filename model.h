@@ -14,16 +14,16 @@ struct VECTOR3I{
     int z;
 };
 
-struct BLOCK_VISUAL_EFFECT{
-    bool is_solid;
-    unsigned char visible_faces;
+struct BLOCK_VISUAL{
+    bool is_visible;
     int material;
+    unsigned char blocked_faces;
 };
 
 struct WORLD_BLOCK
 {
     struct VECTOR3I position;
-    struct BLOCK_VISUAL_EFFECT visual_effect;
+    struct BLOCK_VISUAL visual_effect;
     int level;
     int type;
 
@@ -95,6 +95,11 @@ void get_cube_transform(struct WORLD_CUBE_TRANSFORM* transform, struct WORLD_BLO
 int get_index(int x, int y, int z, int level);
 
 struct WORLD_BLOCK* create_block(int x, int y, int z, int level);
+
+void calc_positions(struct WORLD_TREE* tree);
+
+void calc_blocked_faces(struct WORLD_BLOCK* node);
+
 
 #endif //WORLD_MODEL_H
 

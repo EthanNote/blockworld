@@ -7,8 +7,60 @@
 #include <mem.h>
 #include <stdio.h>
 
-void load_world(struct WORLD_TREE* world_tree, const char* fname){
+#include <sys/stat.h>
+int file_size2(const char* filename)
+{
+    struct stat statbuf;
+    stat(filename,&statbuf);
+    int size=statbuf.st_size;
 
+    return size;
+}
+
+#define STR_EQUAL(a, b) strcmp(a,b)==0
+
+struct WORLD_BLOCK* load_world_tree(cJSON* node){
+    struct WORLD_BLOCK* result=create_block(0,0,0,-1);
+    cJSON* p_attribute=node->child;
+    while(p_attribute){
+        // level
+        if(STR_EQUAL(p_attribute->string, "level")){
+            result->level=p_attribute->valueint;
+        }
+
+        // children
+        else if(STR_EQUAL(p_attribute->string, "children")){
+            cJSON* p_index=p_attribute->child;
+            while (p_index){
+                int index=-1;
+                sscanf(p_index->string, "%d", &index);
+                result->children[index]=load_world_tree(p_index);
+                p_index=p_index->next;
+            }
+        }
+
+        p_attribute=p_attribute->next;
+    }
+    return result;
+}
+
+
+void load_world(struct WORLD_TREE* world_tree, const char* fname){
+    int size=file_size2(fname);
+    char* buffer=(char*)malloc(size);
+    FILE* fp=fopen(fname, "r");
+    fread(buffer, 1, size, fp);
+    fclose(fp);
+
+//    struct WORLD_BLOCK* root=create_block(0,0,0,0);
+
+    cJSON *json = cJSON_Parse(buffer);
+    struct WORLD_BLOCK* root=NULL;
+    if(STR_EQUAL(json->child->string, "root")){
+        root=load_world_tree(json->child);
+    }
+    world_tree->root=root;
+    free(buffer);
 }
 
 
