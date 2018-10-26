@@ -40,7 +40,7 @@ void resize_face_buffer(struct FACEBUFFER* facebuffer, int size);
 
 void init_face_buffer_writer(struct FACEBUFFERWRITER* facebufferwriter, struct FACEBUFFER* facebuffer   );
 
-void fill_face_buffer(struct WORLD_BLOCK* node, int type, struct FACEBUFFERWRITER* facebufferwriter);
+void fill_face_buffer(struct WORLD_BLOCK* node, struct FACEBUFFER* facebuffer);
 
 void draw_buffer(struct FACEBUFFER* facebuffer);
 

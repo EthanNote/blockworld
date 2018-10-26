@@ -148,13 +148,27 @@ void fill_face(struct WORLD_BLOCK* node, int direction, struct FACE* face){
     }
 }
 
+//void face_buffer_write(struct FACEBUFFER* facebuffer, struct FACE* face){
+//    memcpy(&facebuffer->data[facebuffer->facecount], face, sizeof(struct FACE));
+//    facebuffer->facecount++;
+//}
 
-
-void fill_face_buffer(struct WORLD_BLOCK* node, int type, struct FACEBUFFERWRITER* facebufferwriter){
+void fill_face_buffer(struct WORLD_BLOCK* node, struct FACEBUFFER* facebuffer){
     if(!node){
         return;
     }
 
+    if(node->visual_effect.is_visible){
+        for(int i=0;i<6;i++){
+            if(node->visual_effect.blocked_faces & (0x01<<i)){
+                //TODO:LOCK
+                fill_face(node,i,facebuffer->data+facebuffer->facecount);
+                facebuffer->facecount++;
+                //TODO:UNLOCK
+            }
+
+        }
+    }
 
 }
 
