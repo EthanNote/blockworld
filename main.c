@@ -1,60 +1,85 @@
-//#include <stdio.h>
-//#include <glfw3.h>
-//int main() {
-//    printf("Hello, World!\n");
-//    return 0;
-//}
+#include<Windows.h>
+#include<GL/glew.h>
+#include<GLFW/glfw3.h>
+#include<GL/GLU.h>
 
-//#define GLFW_DLL
+#pragma comment(lib, "glfw3.lib")
+#pragma comment(lib, "glew32.lib")
+#pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "glu32.lib")
 
-#include <GLFW/glfw3.h>
+#include "model.h"
+#include "rendering.h"
 
-int main(void)
-{
-    GLFWwindow* window;
+int main() {
 
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
+	struct WORLD_TREE tree;
+	load_world(&tree, "world.json");
+	calc_positions(&tree);
+	calc_visible_nodes(tree.root, NULL);
+	dump_world(&tree, "out.json");
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
 
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
+	GLFWwindow* window;
 
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+	/* Initialize the library */
+	if (!glfwInit())
+		return -1;
 
-        /* Draw a triangle */
-        glBegin(GL_TRIANGLES);
+	/* Create a windowed mode window and its OpenGL context */
+	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	if (!window)
+	{
+		glfwTerminate();
+		return -1;
+	}
 
-        glColor3f(1.0, 0.0, 0.0);    // Red
-        glVertex3f(0.0, 1.0, 0.0);
+	/* Make the window's context current */
+	glfwMakeContextCurrent(window);
 
-        glColor3f(0.0, 1.0, 0.0);    // Green
-        glVertex3f(-1.0, -1.0, 0.0);
+	glewInit();
+	/*GLuint vbo;
+	glGenBuffers(1, &vbo);*/
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glPolygonMode(GL_FRONT, GL_LINE);
 
-        glColor3f(0.0, 0.0, 1.0);    // Blue
-        glVertex3f(1.0, -1.0, 0.0);
+	struct FACEBUFFER buffer;
+	init_face_buffer(&buffer, 1000);
+	fill_face_buffer(tree.root, &buffer);
 
-        glEnd();
+	feed_buffer(&buffer);
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+	/* Loop until the user closes the window */
+	while (!glfwWindowShouldClose(window))
+	{
+		/* Render here */
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glColor3f(1, 1, 1);
 
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		gluLookAt(3, 4, 5, 0, 0, 0, 0, 1, 0);
 
-    glfwTerminate();
-    return 0;
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(60, 1, 0.1, 10);
+
+
+		draw_buffer(&buffer);
+
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+
+		/* Poll for and process events */
+		glfwPollEvents();
+	}
+
+	glfwTerminate();
+	return 0;
+
+	glfwInit();
+
+
+
+	return 0;
 }

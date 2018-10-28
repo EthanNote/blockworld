@@ -100,6 +100,9 @@ void calc_positions(struct WORLD_TREE* tree);
 
 void calc_blocked_faces(struct WORLD_BLOCK* node);
 
+typedef bool(*VISIBLE_EVAL_FUNC)(struct WORLD_BLOCK*);
+
+void calc_visible_nodes(struct WORLD_BLOCK* root, VISIBLE_EVAL_FUNC eval);
 
 #endif //WORLD_MODEL_H
 
