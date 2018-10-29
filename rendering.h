@@ -37,9 +37,9 @@ struct NAMED_BLOCK_FACE_BUFFER
 };
 
 struct BUFFER_LIST {
-	struct NAMED_BLOCK_FACE_BUFFER* buffers;
+	struct NAMED_BLOCK_FACE_BUFFER* named_buffers;
 	int count;
-	int capasity;
+	int capacity;
 };
 
 

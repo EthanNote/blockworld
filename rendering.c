@@ -11,7 +11,7 @@
 struct FACEBUFFER_GL_CONTEXT {
 	struct FACE_BUFFER* facebuffer;
 	GLuint vbo;
-	struct FACE_MATERIAL* material;
+	struct FACE_MATERIAL* face_material;
 };
 
 void init_face_buffer(struct FACE_BUFFER* facebuffer, int size) {
@@ -206,8 +206,14 @@ void feed_buffer(struct FACE_BUFFER* facebuffer) {
 	glBufferData(GL_ARRAY_BUFFER, facebuffer->facecount * sizeof(struct FACE), facebuffer->data, GL_STATIC_DRAW);
 }
 
-void draw_buffer(struct FACE_BUFFER* facebuffer) {
+void apply_face_material(struct FACE_MATERIAL* face_material){
+    glColor3fv(face_material->final_color);
+}
 
+void draw_buffer(struct FACE_BUFFER* facebuffer) {
+    if(facebuffer->face_material){
+        apply_face_material(facebuffer->face_material);
+    }
 	glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
@@ -223,34 +229,57 @@ void draw_buffer(struct FACE_BUFFER* facebuffer) {
 
 }
 
-struct BUFFER_LIST* create_buffer_list_from_materials(int material_count, int buffer_size) {
-	struct BUFFER_LIST* manager = malloc(sizeof(struct BUFFER_LIST));
-	manager->buffers = malloc(sizeof(struct FACE_BUFFER) * 6 * material_count);
-	manager->count = material_count * 6;
-	return manager;
+void draw_buffer_list(struct BUFFER_LIST* buffer_list){
+    for(int i=0;i<buffer_list->count;i++){
+        for(int j=0;j<6;j++){
+            struct FACE_BUFFER* facebuffer=&buffer_list->named_buffers[i].facebuffer[j];
+            draw_buffer(facebuffer);
+        }
+    }
 }
 
-void fill_material_face_buffer(
-	struct WORLD_BLOCK* node,
-	struct BLOCK_MATERIAL_LIST* material_list,
-	struct BUFFER_LIST* materialfacebuffer
-) {
-	if (!node) {
+struct BUFFER_LIST* create_buffer_list_from_materials(
+    struct* BLOCK_MATERIAL_LIST block_material_list
+    int init_face_buffer_capacity=1000
+    ) {
+	struct BUFFER_LIST* buffer_list = malloc(sizeof(struct BUFFER_LIST));
+    buffer_list->count=block_material_list->count;
+    buffer_list->capacity=buffer_list->count;
+	buffer_list->named_buffers
+        =malloc(sizeof(struct NAMED_BLOCK_FACE_BUFFER)*buffer_list->capacity);
+
+    for(int i=0;i<buffer_list->count;i++){
+        strcpy(buffer_list->named_buffers[i].name, block_material_list->materials[i].name);
+        for(int j=0;j<6;j++){
+            init_face_buffer(&buffer_list->named_buffers[i].facebuffer[j], init_face_buffer_capacity);
+            struct FACEBUFFER_GL_CONTEXT* gl_context=buffer_list->named_buffers[i].facebuffer[j].low_level_context;
+            gl_context->face_material=&block_material_list->materials[i].face_material[j];
+        }
+    }
+    return buffer_list;
+}
+
+void fill_buffer_list(
+    struct WORLD_BLOCK* node, 
+    struct BUFFER_LIST* buffer_list
+    )
+{
+    if (!node) {
 		return;
 	}
-
-	char* material_name = node->visual_effect.material_name;
-	int i = material_list->count - 1;
-	for (; i > 0; i--) {
-		if (strcmp(material_list->materials[i].name, material_name) == 0) {
-			break;
-		}
-	}
-	if (node->visual_effect.is_visible) {
+    char* node_material_name = node->visual_effect.material_name;
+    int i=buffer_list->count-1;
+    for(;i>0;i--){
+        char* material_name=buffer_list->named_buffers[i].name;
+        if(strcmp(node_material_name, material_name)==0){
+            break;
+        }
+    }
+    if (node->visual_effect.is_visible) {
 		for (int j = 0; j < 6; j++) {
 			if (node->visual_effect.blocked_faces ^ (0x01 << j)) {
 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);
-				struct FACE_BUFFER* facebuffer = &materialfacebuffer->buffers[i * 6 + j];
+				struct FACE_BUFFER* facebuffer = &buffer_list->named_buffers[i].facebuffer[j];
 				fill_face(node, j, facebuffer->data + facebuffer->facecount);
 				facebuffer->facecount++;
 
@@ -261,7 +290,45 @@ void fill_material_face_buffer(
 	}
 	else {
 		for (int j = 0; j < 8; j++) {
-			fill_material_face_buffer(node->children[j], material_list, materialfacebuffer);
+			fill_buffer_list(node->children[j], buffer_list);
 		}
 	}
+
 }
+
+
+// void fill_material_face_buffer(
+// 	struct WORLD_BLOCK* node,
+// 	struct BLOCK_MATERIAL_LIST* material_list,
+// 	struct BUFFER_LIST* materialfacebuffer
+// ) {
+// 	if (!node) {
+// 		return;
+// 	}
+
+// 	char* material_name = node->visual_effect.material_name;
+// 	int i = material_list->count - 1;
+// 	for (; i > 0; i--) {
+// 		if (strcmp(material_list->materials[i].name, material_name) == 0) {
+// 			break;
+// 		}
+// 	}
+// 	if (node->visual_effect.is_visible) {
+// 		for (int j = 0; j < 6; j++) {
+// 			if (node->visual_effect.blocked_faces ^ (0x01 << j)) {
+// 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);
+// 				struct FACE_BUFFER* facebuffer = &materialfacebuffer->buffers[i * 6 + j];
+// 				fill_face(node, j, facebuffer->data + facebuffer->facecount);
+// 				facebuffer->facecount++;
+
+// 				//pthread_rwlock_unlock(&facebuffer->buffer_lock);
+// 			}
+
+// 		}
+// 	}
+// 	else {
+// 		for (int j = 0; j < 8; j++) {
+// 			fill_material_face_buffer(node->children[j], material_list, materialfacebuffer);
+// 		}
+// 	}
+// }
