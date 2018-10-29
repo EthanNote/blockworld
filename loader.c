@@ -46,7 +46,7 @@ struct WORLD_BLOCK* load_world_tree(cJSON* node) {
 }
 
 
-void load_world(struct WORLD_TREE* world_tree, const char* fname) {
+cJSON* load_json_file(const char* fname){
 	int size = file_size2(fname);
 	char* buffer = (char*)malloc(size);
 	FILE* fp = NULL;
@@ -54,16 +54,32 @@ void load_world(struct WORLD_TREE* world_tree, const char* fname) {
 
 	fread(buffer, 1, size, fp);
 	fclose(fp);
-
-	//    struct WORLD_BLOCK* root=create_block(0,0,0,0);
-
 	cJSON *json = cJSON_Parse(buffer);
+	free(buffer);
+	return json;
+}
+
+void load_world(struct WORLD_TREE* world_tree, const char* fname) {
+	// int size = file_size2(fname);
+	// char* buffer = (char*)malloc(size);
+	// FILE* fp = NULL;
+	// fopen_s(&fp, fname, "r");
+
+	// fread(buffer, 1, size, fp);
+	// fclose(fp);
+
+	// //    struct WORLD_BLOCK* root=create_block(0,0,0,0);
+
+	// cJSON *json = cJSON_Parse(buffer);
+
+	cJSON* json=load_json_file(fname);
+
 	struct WORLD_BLOCK* root = NULL;
 	if (STR_EQUAL(json->child->string, "root")) {
 		root = load_world_tree(json->child);
 	}
 	world_tree->root = root;
-	free(buffer);
+	//free(buffer);
 }
 
 
@@ -104,5 +120,9 @@ void dump_world(struct WORLD_TREE* world_tree, const char* fname) {
 
 }
 
-
+void load_material(const char* fname){
+	cJSON* json=load_json_file(fname);
+	set_material_json(json);
+	cJSON_free(json);
+}
 

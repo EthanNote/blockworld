@@ -19,6 +19,7 @@ int main() {
 	calc_visible_nodes(tree.root, NULL);
 	dump_world(&tree, "out.json");
 
+	load_material("materials.json");
 
 	GLFWwindow* window;
 
@@ -42,8 +43,10 @@ int main() {
 	glGenBuffers(1, &vbo);*/
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glPolygonMode(GL_FRONT, GL_LINE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
-	struct FACEBUFFER buffer;
+	struct FACE_BUFFER buffer;
 	init_face_buffer(&buffer, 1000);
 	fill_face_buffer(tree.root, &buffer);
 

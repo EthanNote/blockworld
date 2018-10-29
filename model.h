@@ -16,7 +16,9 @@ struct VECTOR3I{
 
 struct BLOCK_VISUAL{
     bool is_visible;
-    int material;
+	char* material_name;
+
+	unsigned char blended_color[4];
     unsigned char blocked_faces;
 };
 
