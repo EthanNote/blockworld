@@ -1,5 +1,9 @@
 #include "cJSON.h"
 
+#ifndef MATERIALS_H
+#define MATERIALS_H
+
+
 struct FACE_MATERIAL
 {
 	float final_color[3];
@@ -18,6 +22,11 @@ struct BLOCK_MATERIAL_LIST
 	int capacity;
 };
 
-void set_material_json(struct cJSON* json);
+struct BLOCK_MATERIAL_LIST* create_block_material_list();
 
-struct FACE_MATERIAL* get_material(const char* name, int direction);
+//void set_material_json(struct cJSON* json);
+
+//struct FACE_MATERIAL* get_material(const char* name, int direction);
+
+
+#endif // !MATERIALS_H

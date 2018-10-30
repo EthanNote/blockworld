@@ -206,14 +206,22 @@ void feed_buffer(struct FACE_BUFFER* facebuffer) {
 	glBufferData(GL_ARRAY_BUFFER, facebuffer->facecount * sizeof(struct FACE), facebuffer->data, GL_STATIC_DRAW);
 }
 
-void apply_face_material(struct FACE_MATERIAL* face_material){
-    glColor3fv(face_material->final_color);
+void feed_buffer_list(struct BUFFER_LIST* buffer_list) {
+	for (int i = 0; i < buffer_list->count; i++) {
+		for (int j = 0; j < 6; j++) {
+			feed_buffer(&buffer_list->named_buffers[i].facebuffer[j]);
+		}
+	}
+}
+
+void apply_face_material(struct FACE_MATERIAL* face_material) {
+	glColor3fv(face_material->final_color);
 }
 
 void draw_buffer(struct FACE_BUFFER* facebuffer) {
-    if(facebuffer->face_material){
-        apply_face_material(facebuffer->face_material);
-    }
+	if (facebuffer->face_material) {
+		apply_face_material(facebuffer->face_material);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
@@ -229,53 +237,78 @@ void draw_buffer(struct FACE_BUFFER* facebuffer) {
 
 }
 
-void draw_buffer_list(struct BUFFER_LIST* buffer_list){
-    for(int i=0;i<buffer_list->count;i++){
-        for(int j=0;j<6;j++){
-            struct FACE_BUFFER* facebuffer=&buffer_list->named_buffers[i].facebuffer[j];
-            draw_buffer(facebuffer);
-        }
-    }
+void draw_buffer_list(struct BUFFER_LIST* buffer_list) {
+	for (int i = 0; i < buffer_list->count; i++) {
+		for (int j = 0; j < 6; j++) {
+			struct FACE_BUFFER* facebuffer = &buffer_list->named_buffers[i].facebuffer[j];
+			draw_buffer(facebuffer);
+		}
+	}
 }
 
 struct BUFFER_LIST* create_buffer_list_from_materials(
-    struct* BLOCK_MATERIAL_LIST block_material_list
-    int init_face_buffer_capacity=1000
-    ) {
+	struct BLOCK_MATERIAL_LIST* block_material_list,
+	int init_face_buffer_capacity
+) {
 	struct BUFFER_LIST* buffer_list = malloc(sizeof(struct BUFFER_LIST));
-    buffer_list->count=block_material_list->count;
-    buffer_list->capacity=buffer_list->count;
+	buffer_list->count = block_material_list->count;
+	buffer_list->capacity = buffer_list->count;
 	buffer_list->named_buffers
-        =malloc(sizeof(struct NAMED_BLOCK_FACE_BUFFER)*buffer_list->capacity);
+		= malloc(sizeof(struct NAMED_BLOCK_FACE_BUFFER)*buffer_list->capacity);
 
-    for(int i=0;i<buffer_list->count;i++){
-        strcpy(buffer_list->named_buffers[i].name, block_material_list->materials[i].name);
-        for(int j=0;j<6;j++){
-            init_face_buffer(&buffer_list->named_buffers[i].facebuffer[j], init_face_buffer_capacity);
-            struct FACEBUFFER_GL_CONTEXT* gl_context=buffer_list->named_buffers[i].facebuffer[j].low_level_context;
-            gl_context->face_material=&block_material_list->materials[i].face_material[j];
-        }
-    }
-    return buffer_list;
+	for (int i = 0; i < buffer_list->count; i++) {
+		strcpy(buffer_list->named_buffers[i].name, block_material_list->materials[i].name);
+		for (int j = 0; j < 6; j++) {
+			init_face_buffer(&buffer_list->named_buffers[i].facebuffer[j], init_face_buffer_capacity);
+			struct FACEBUFFER_GL_CONTEXT* gl_context = buffer_list->named_buffers[i].facebuffer[j].low_level_context;
+			gl_context->face_material = &block_material_list->materials[i].face_material[j];
+		}
+	}
+	update_buffer_list_material(buffer_list, block_material_list);
+	return buffer_list;
+}
+
+void update_buffer_list_material(struct BUFFER_LIST* buffer_list, struct BLOCK_MATERIAL_LIST* block_material_list) {
+	for (int i = 0; i < buffer_list->count; i++) {
+		char* buffer_name = buffer_list->named_buffers[i].name;
+		buffer_list->named_buffers[i].facebuffer[0].face_material = NULL;
+		buffer_list->named_buffers[i].facebuffer[1].face_material = NULL;
+		buffer_list->named_buffers[i].facebuffer[2].face_material = NULL;
+		buffer_list->named_buffers[i].facebuffer[3].face_material = NULL;
+		buffer_list->named_buffers[i].facebuffer[4].face_material = NULL;
+		buffer_list->named_buffers[i].facebuffer[5].face_material = NULL;
+		for (int j = 0; j < block_material_list->count; j++) {
+			char* material_name = block_material_list->materials[j].name;
+			if (strcpy(buffer_name, material_name) == 0) {
+				buffer_list->named_buffers[i].facebuffer[0].face_material = &block_material_list->materials[j].face_material[0];
+				buffer_list->named_buffers[i].facebuffer[1].face_material = &block_material_list->materials[j].face_material[1];
+				buffer_list->named_buffers[i].facebuffer[2].face_material = &block_material_list->materials[j].face_material[2];
+				buffer_list->named_buffers[i].facebuffer[3].face_material = &block_material_list->materials[j].face_material[3];
+				buffer_list->named_buffers[i].facebuffer[4].face_material = &block_material_list->materials[j].face_material[4];
+				buffer_list->named_buffers[i].facebuffer[5].face_material = &block_material_list->materials[j].face_material[5];
+				break;
+			}
+		}
+	}
 }
 
 void fill_buffer_list(
-    struct WORLD_BLOCK* node, 
-    struct BUFFER_LIST* buffer_list
-    )
+	struct WORLD_BLOCK* node,
+	struct BUFFER_LIST* buffer_list
+)
 {
-    if (!node) {
+	if (!node) {
 		return;
 	}
-    char* node_material_name = node->visual_effect.material_name;
-    int i=buffer_list->count-1;
-    for(;i>0;i--){
-        char* material_name=buffer_list->named_buffers[i].name;
-        if(strcmp(node_material_name, material_name)==0){
-            break;
-        }
-    }
-    if (node->visual_effect.is_visible) {
+	char* node_material_name = node->visual_effect.material_name;
+	int i = buffer_list->count - 1;
+	for (; i > 0; i--) {
+		char* material_name = buffer_list->named_buffers[i].name;
+		if (strcmp(node_material_name, material_name) == 0) {
+			break;
+		}
+	}
+	if (node->visual_effect.is_visible) {
 		for (int j = 0; j < 6; j++) {
 			if (node->visual_effect.blocked_faces ^ (0x01 << j)) {
 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);

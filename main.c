@@ -10,6 +10,7 @@
 
 #include "model.h"
 #include "rendering.h"
+#include "loader.h"
 
 int main() {
 
@@ -18,8 +19,6 @@ int main() {
 	calc_positions(&tree);
 	calc_visible_nodes(tree.root, NULL);
 	dump_world(&tree, "out.json");
-
-	load_material("materials.json");
 
 	GLFWwindow* window;
 
@@ -46,11 +45,18 @@ int main() {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	struct FACE_BUFFER buffer;
+	/*struct FACE_BUFFER buffer;
 	init_face_buffer(&buffer, 1000);
 	fill_face_buffer(tree.root, &buffer);
 
-	feed_buffer(&buffer);
+	feed_buffer(&buffer);*/
+
+	struct BLOCK_MATERIAL_LIST* material_list = create_block_material_list();
+	load_material("materials.json", material_list);
+	struct BUFFER_LIST* buffer_list = create_buffer_list_from_materials(material_list, 100);
+	fill_buffer_list(tree.root, buffer_list);
+
+	feed_buffer_list(buffer_list);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -68,7 +74,8 @@ int main() {
 		gluPerspective(60, 1, 0.1, 10);
 
 
-		draw_buffer(&buffer);
+		//draw_buffer(&buffer);
+		draw_buffer_list(buffer_list);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

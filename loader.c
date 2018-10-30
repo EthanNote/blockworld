@@ -46,7 +46,7 @@ struct WORLD_BLOCK* load_world_tree(cJSON* node) {
 }
 
 
-cJSON* load_json_file(const char* fname){
+cJSON* load_json_file(const char* fname) {
 	int size = file_size2(fname);
 	char* buffer = (char*)malloc(size);
 	FILE* fp = NULL;
@@ -72,7 +72,7 @@ void load_world(struct WORLD_TREE* world_tree, const char* fname) {
 
 	// cJSON *json = cJSON_Parse(buffer);
 
-	cJSON* json=load_json_file(fname);
+	cJSON* json = load_json_file(fname);
 
 	struct WORLD_BLOCK* root = NULL;
 	if (STR_EQUAL(json->child->string, "root")) {
@@ -120,9 +120,44 @@ void dump_world(struct WORLD_TREE* world_tree, const char* fname) {
 
 }
 
-void load_material(const char* fname){
-	cJSON* json=load_json_file(fname);
-	set_material_json(json);
-	cJSON_free(json);
-}
+//void load_material(const char* fname){
+//	cJSON* json=load_json_file(fname);
+//	set_material_json(json);
+//	cJSON_free(json);
+//}
 
+void load_material(const char* fname, struct BLOCK_MATERIAL_LIST* output_block_material_list) {
+	cJSON* json = load_json_file(fname);
+	cJSON* material_collection_node = json->child;
+	cJSON* current_material_node = material_collection_node->child;
+	while (current_material_node)
+	{
+		char* name = current_material_node->string;
+		struct BLOCK_MATERIAL block_material;
+		strcpy_s(block_material.name, 16, name);
+		cJSON* current_face_node = current_material_node->child;
+		for (int face = 0; face < 6; face++) {
+			cJSON* current_color_value = current_face_node->child;
+			for (int color = 0; color < 3; color++) {
+				block_material.face_material[face].final_color[color]
+					= current_color_value->valuedouble;
+				current_color_value = current_color_value->next;
+			}
+			current_face_node = current_face_node->next;
+		}
+		
+		if (output_block_material_list->capacity <= output_block_material_list->count)
+		{
+			int new_size = output_block_material_list->count * 2;
+			output_block_material_list->materials = realloc(
+				output_block_material_list->materials,
+				sizeof(struct BLOCK_MATERIAL)*new_size);
+			output_block_material_list->capacity = new_size;
+		}
+
+		output_block_material_list
+			->materials[output_block_material_list->count] = block_material;
+		output_block_material_list->count++;
+		current_material_node = current_material_node->next;
+	}
+}

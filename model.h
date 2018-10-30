@@ -6,13 +6,9 @@
 #define WORLD_MODEL_H
 
 #include <stdbool.h>
+#include "vector3.h"
 
 
-struct VECTOR3I{
-    int x;
-    int y;
-    int z;
-};
 
 struct BLOCK_VISUAL{
     bool is_visible;

@@ -44,20 +44,35 @@ struct BUFFER_LIST {
 
 
 
-struct BUFFER_LIST* create_buffer_list_from_materials(struct BLOCK_MATERIAL_LIST* block_material_list) {
-	struct BUFFER_LIST* buffer_list = malloc(sizeof(struct BUFFER_LIST));
-	buffer_list->count=block_material_list->count;
-	buffer_list->capasity = buffer_list->count;
-	buffer_list->buffers = malloc(sizeof(struct NAMED_BLOCK_FACE_BUFFER)*buffer_list->capasity);
-	for (int i = 0; i < buffer_list->count; i++) {
-		
-		
-		strcpy(buffer_list->buffers[i].name,block_material_list->materials[i].name);
+//struct BUFFER_LIST* create_buffer_list_from_materials(struct BLOCK_MATERIAL_LIST* block_material_list) {
+//	struct BUFFER_LIST* buffer_list = malloc(sizeof(struct BUFFER_LIST));
+//	buffer_list->count = block_material_list->count;
+//	buffer_list->capacity = buffer_list->count;
+//	buffer_list->named_buffers = malloc(sizeof(struct NAMED_BLOCK_FACE_BUFFER)*buffer_list->capacity);
+//	for (int i = 0; i < buffer_list->count; i++) {
+//		//strcpy(buffer_list->named_buffers[i].name, block_material_list->materials[i].name);
+//		strcpy_s(buffer_list->named_buffers[i].name, 16, block_material_list->materials[i].name);
+//	}
+//}
 
-	}
-}
+struct BUFFER_LIST* create_buffer_list_from_materials(
+	struct BLOCK_MATERIAL_LIST* block_material_list,
+	int init_face_buffer_capacity
+);
 
 void fill_material_face_buffer(struct WORLD_BLOCK* node, struct FACE_BUFFER* facebuffer);
+
+void fill_buffer_list(
+	struct WORLD_BLOCK* node,
+	struct BUFFER_LIST* buffer_list
+);
+
+void update_buffer_list_material(
+	struct BUFFER_LIST* buffer_list,
+	struct BLOCK_MATERIAL_LIST* block_material_list
+);
+
+void draw_buffer_list(struct BUFFER_LIST* buffer_list);
 
 //struct FACEBUFFERWRITER{
 //    struct FACEBUFFER* facebuffer;
@@ -80,5 +95,7 @@ void fill_face_buffer(struct WORLD_BLOCK* node, struct FACE_BUFFER* facebuffer);
 void feed_buffer(struct FACE_BUFFER* facebuffer);
 
 void draw_buffer(struct FACE_BUFFER* facebuffer);
+
+void feed_buffer_list(struct BUFFER_LIST* buffer_list);
 
 #endif //WORLD_RENDERING_H
