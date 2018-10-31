@@ -18,7 +18,7 @@ int file_size2(const char* filename)
 	return size;
 }
 
-#define STR_EQUAL(a, b) strcmp(a,b)==0
+
 
 struct WORLD_BLOCK* load_world_tree(cJSON* node) {
 	struct WORLD_BLOCK* result = create_block(0, 0, 0, -1);
@@ -27,6 +27,10 @@ struct WORLD_BLOCK* load_world_tree(cJSON* node) {
 		// level
 		if (STR_EQUAL(p_attribute->string, "level")) {
 			result->level = p_attribute->valueint;
+		}
+
+		if (STR_EQUAL(p_attribute->string, "material")) {
+			strcpy_s(result->visual_effect.material_name, 16, p_attribute->valuestring);
 		}
 
 		// children

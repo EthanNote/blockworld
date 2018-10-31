@@ -8,6 +8,8 @@
 #include <GLFW/glfw3.h>
 #include "materials.h"
 
+#include "utils.h"
+
 struct FACEBUFFER_GL_CONTEXT {
 	struct FACE_BUFFER* facebuffer;
 	GLuint vbo;
@@ -279,7 +281,7 @@ void update_buffer_list_material(struct BUFFER_LIST* buffer_list, struct BLOCK_M
 		buffer_list->named_buffers[i].facebuffer[5].face_material = NULL;
 		for (int j = 0; j < block_material_list->count; j++) {
 			char* material_name = block_material_list->materials[j].name;
-			if (strcpy(buffer_name, material_name) == 0) {
+			if (STR_EQUAL(buffer_name, material_name)) {
 				buffer_list->named_buffers[i].facebuffer[0].face_material = &block_material_list->materials[j].face_material[0];
 				buffer_list->named_buffers[i].facebuffer[1].face_material = &block_material_list->materials[j].face_material[1];
 				buffer_list->named_buffers[i].facebuffer[2].face_material = &block_material_list->materials[j].face_material[2];
@@ -304,7 +306,7 @@ void fill_buffer_list(
 	int i = buffer_list->count - 1;
 	for (; i > 0; i--) {
 		char* material_name = buffer_list->named_buffers[i].name;
-		if (strcmp(node_material_name, material_name) == 0) {
+		if (STR_EQUAL(node_material_name, material_name)) {
 			break;
 		}
 	}
@@ -329,39 +331,3 @@ void fill_buffer_list(
 
 }
 
-
-// void fill_material_face_buffer(
-// 	struct WORLD_BLOCK* node,
-// 	struct BLOCK_MATERIAL_LIST* material_list,
-// 	struct BUFFER_LIST* materialfacebuffer
-// ) {
-// 	if (!node) {
-// 		return;
-// 	}
-
-// 	char* material_name = node->visual_effect.material_name;
-// 	int i = material_list->count - 1;
-// 	for (; i > 0; i--) {
-// 		if (strcmp(material_list->materials[i].name, material_name) == 0) {
-// 			break;
-// 		}
-// 	}
-// 	if (node->visual_effect.is_visible) {
-// 		for (int j = 0; j < 6; j++) {
-// 			if (node->visual_effect.blocked_faces ^ (0x01 << j)) {
-// 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);
-// 				struct FACE_BUFFER* facebuffer = &materialfacebuffer->buffers[i * 6 + j];
-// 				fill_face(node, j, facebuffer->data + facebuffer->facecount);
-// 				facebuffer->facecount++;
-
-// 				//pthread_rwlock_unlock(&facebuffer->buffer_lock);
-// 			}
-
-// 		}
-// 	}
-// 	else {
-// 		for (int j = 0; j < 8; j++) {
-// 			fill_material_face_buffer(node->children[j], material_list, materialfacebuffer);
-// 		}
-// 	}
-// }

@@ -5,6 +5,8 @@
 #ifndef WORLD_LOADER_H
 #define WORLD_LOADER_H
 
+#include "utils.h"
+
 #include "model.h"
 #include "materials.h"
 #include "cJSON.h"

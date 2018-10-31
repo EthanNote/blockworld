@@ -7,12 +7,12 @@
 #include "model.h"
 #include<memory.h>
 
-void get_cube_transform(struct WORLD_CUBE_TRANSFORM* transform, struct WORLD_BLOCK* block, struct WORLD_SIZE_CONFIG* config) {
-	transform->px = config->min_distance*block->position.x;
-	transform->py = config->min_distance*block->position.x;
-	transform->pz = config->min_distance*block->position.x;
-	transform->size = config->min_distance*(0x1 << block->level);
-}
+//void get_cube_transform(struct WORLD_CUBE_TRANSFORM* transform, struct WORLD_BLOCK* block, struct WORLD_SIZE_CONFIG* config) {
+//	transform->px = config->min_distance*block->position.x;
+//	transform->py = config->min_distance*block->position.x;
+//	transform->pz = config->min_distance*block->position.x;
+//	transform->size = config->min_distance*(0x1 << block->level);
+//}
 
 //#define INDEX(x, y, z, level) (((x)>>(level))&0x01)|(((y)>>((level)-1))&0x02)|(((z)>>((level)-2))&0x04)
 

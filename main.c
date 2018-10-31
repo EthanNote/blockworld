@@ -11,6 +11,7 @@
 #include "model.h"
 #include "rendering.h"
 #include "loader.h"
+#include "view.h"
 
 int main() {
 
@@ -41,7 +42,7 @@ int main() {
 	/*GLuint vbo;
 	glGenBuffers(1, &vbo);*/
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glPolygonMode(GL_FRONT, GL_LINE);
+	/*glPolygonMode(GL_FRONT, GL_LINE);*/
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
@@ -55,23 +56,19 @@ int main() {
 	load_material("materials.json", material_list);
 	struct BUFFER_LIST* buffer_list = create_buffer_list_from_materials(material_list, 100);
 	fill_buffer_list(tree.root, buffer_list);
-
+	update_buffer_list_material(buffer_list, material_list);
 	feed_buffer_list(buffer_list);
+
+	struct CAMERA_OPTION cam_opt;
+	create_camera_option(CAMERA_TYPE_PERSPECTIVE, 640, 480, &cam_opt);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glColor3f(1, 1, 1);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		gluLookAt(3, 4, 5, 0, 0, 0, 0, 1, 0);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(60, 1, 0.1, 10);
+	
+		apply_camera_option(&cam_opt);
 
 
 		//draw_buffer(&buffer);

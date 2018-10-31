@@ -12,9 +12,8 @@
 
 struct BLOCK_VISUAL{
     bool is_visible;
-	char* material_name;
-
-	unsigned char blended_color[4];
+	char material_name[16];
+	//unsigned char blended_color[4];
     unsigned char blocked_faces;
 };
 
