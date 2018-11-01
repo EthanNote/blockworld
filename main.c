@@ -19,6 +19,7 @@ int main() {
 	load_world(&tree, "world.json");
 	calc_positions(&tree);
 	calc_visible_nodes(tree.root, NULL);
+	calc_blocked_faces(tree.root);
 	dump_world(&tree, "out.json");
 
 	GLFWwindow* window;
@@ -42,7 +43,8 @@ int main() {
 	/*GLuint vbo;
 	glGenBuffers(1, &vbo);*/
 	glEnableClientState(GL_VERTEX_ARRAY);
-	/*glPolygonMode(GL_FRONT, GL_LINE);*/
+	//glPolygonMode(GL_FRONT, GL_LINE);
+	//glPolygonMode(GL_BACK, GL_LINE);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);

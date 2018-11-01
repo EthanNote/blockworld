@@ -257,7 +257,7 @@ void calc_blocked_faces_y(struct WORLD_BLOCK* y1, struct WORLD_BLOCK* y2) {
 		add_block_flag_y_negative(y2);
 	}
 	if (y2->visual_effect.is_visible) {
-		add_block_flag_x_positive(y1);
+		add_block_flag_y_positive(y1);
 	}
 
 	calc_blocked_faces_x(y1->children[2], y2->children[0]);
@@ -275,7 +275,7 @@ void calc_blocked_faces_z(struct WORLD_BLOCK* z1, struct WORLD_BLOCK* z2) {
 		add_block_flag_z_negative(z2);
 	}
 	if (z2->visual_effect.is_visible) {
-		add_block_flag_x_positive(z1);
+		add_block_flag_z_positive(z1);
 	}
 
 	calc_blocked_faces_x(z1->children[4], z2->children[0]);

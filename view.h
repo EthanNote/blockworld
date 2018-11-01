@@ -28,6 +28,13 @@ struct CAMERA_FPS_CONTROL {
 	float angle_x;
 };
 
+struct CAMERA_ORBIT_CONTROL {
+	struct VECTOR3F center;
+	float distance;
+	float angle_y;
+	float angle_x;
+};
+
 struct CAMERA_OPTION {
 	struct VECTOR3F position;
 	struct VECTOR3F direction;

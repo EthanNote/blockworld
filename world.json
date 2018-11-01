@@ -1,7 +1,7 @@
 {
 	"root":	{
-		"children":	{
-			"4":	{
+    "children": {
+      "0": {
         "children": {
           "0": {
             "children": {
@@ -22,9 +22,32 @@
             "material": "axis"
           }
         },
-				"level":	1
-			}
-		},
+        "level": 1
+      },
+      "4": {
+        "children": {
+          "0": {
+            "children": {
+            },
+            "level": 0,
+            "material": "axis"
+          },
+          "1": {
+            "children": {
+            },
+            "level": 0,
+            "material": "axis"
+          },
+          "5": {
+            "children": {
+            },
+            "level": 0,
+            "material": "axis"
+          }
+        },
+        "level": 1
+      }
+    },
 		"level":	2
 	}
 }

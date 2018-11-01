@@ -10,11 +10,11 @@ void create_camera_option(int camera_type, int width, int height, struct CAMERA_
 	
 	output_option->position.x = 3;
 	output_option->position.y = 4;
-	output_option->position.z = 5;
+	output_option->position.z = 8;
 
 	output_option->direction.x = -3;
 	output_option->direction.y = -4;
-	output_option->direction.z = -5;
+	output_option->direction.z = -8;
 
 	output_option->up.x = 0;
 	output_option->up.y = 1;

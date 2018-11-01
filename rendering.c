@@ -312,7 +312,7 @@ void fill_buffer_list(
 	}
 	if (node->visual_effect.is_visible) {
 		for (int j = 0; j < 6; j++) {
-			if (node->visual_effect.blocked_faces ^ (0x01 << j)) {
+			if (~node->visual_effect.blocked_faces & (0x01 << j)) {
 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);
 				struct FACE_BUFFER* facebuffer = &buffer_list->named_buffers[i].facebuffer[j];
 				fill_face(node, j, facebuffer->data + facebuffer->facecount);

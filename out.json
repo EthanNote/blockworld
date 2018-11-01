@@ -1,7 +1,7 @@
 {
 	"root":	{
 		"children":	{
-			"4":	{
+			"0":	{
 				"children":	{
 					"0":	{
 						"children":	{
@@ -14,6 +14,26 @@
 						"level":	0
 					},
 					"3":	{
+						"children":	{
+						},
+						"level":	0
+					}
+				},
+				"level":	1
+			},
+			"4":	{
+				"children":	{
+					"0":	{
+						"children":	{
+						},
+						"level":	0
+					},
+					"1":	{
+						"children":	{
+						},
+						"level":	0
+					},
+					"5":	{
 						"children":	{
 						},
 						"level":	0
