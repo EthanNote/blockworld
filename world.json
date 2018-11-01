@@ -2,14 +2,26 @@
 	"root":	{
 		"children":	{
 			"4":	{
-				"children":	{
-					"2":	{
-						"children":	{
-						},
+        "children": {
+          "0": {
+            "children": {
+            },
             "level": 0,
             "material": "axis"
-					}
-				},
+          },
+          "1": {
+            "children": {
+            },
+            "level": 0,
+            "material": "axis"
+          },
+          "3": {
+            "children": {
+            },
+            "level": 0,
+            "material": "axis"
+          }
+        },
 				"level":	1
 			}
 		},

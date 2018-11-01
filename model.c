@@ -141,7 +141,7 @@ void calc_child_node_position(struct WORLD_BLOCK* node) {
 	if (node->level < 1) {
 		return;
 	}
-	int inc = 0x01 << (node->level - 1);
+	int inc = 1 << (node->level - 1);
 
 	for (int i = 0; i < 8; i++) {
 		if (node->children[i]) {
@@ -160,6 +160,8 @@ void calc_child_node_position(struct WORLD_BLOCK* node) {
 				// fix level error
 				node->children[i]->level = node->level - 1;
 			}
+			struct WORLD_BLOCK* child_node = node->children[i];
+			calc_child_node_position(child_node);
 		}
 	}
 }

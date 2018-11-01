@@ -45,6 +45,7 @@ int main() {
 	/*glPolygonMode(GL_FRONT, GL_LINE);*/
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
 
 	/*struct FACE_BUFFER buffer;
 	init_face_buffer(&buffer, 1000);
