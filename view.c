@@ -3,6 +3,8 @@
 #include<GLFW/glfw3.h>
 #include<GL/GLU.h>
 
+#include "input.h"
+
 void create_camera_option(int camera_type, int width, int height, struct CAMERA_OPTION* output_option){
 	output_option->camera_type = camera_type;
 	output_option->frame_buffer_option.width = width;
@@ -55,3 +57,30 @@ void apply_camera_option(struct CAMERA_OPTION* option) {
 		option->perspective_option.far_distance
 	);
 }
+
+CAMERA_OPTION* current_activated_option;
+GLFWwindow* main_window
+
+void set_main_window(void* window){
+    main_window=window;
+}
+
+double last_xpos;
+double last_ypos
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    double dx=xpos-last_xpos;
+    double dy=ypos-last_ypos;
+
+
+    last_xpos=xpos;
+    last_ypos=ypos;
+}
+
+void activate_camera_control(struct CAMERA_OPTION* option){
+    current_activated_option=ortho_option;
+    glfwGetCursorPos(main_window, &last_xpos, &last_ypos);
+    glfwSetCursorPosCallback(main_window, cursor_pos_callback);
+}
+
+void deactivate_camera_control(struct CAMERA_OPTION* option);

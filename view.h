@@ -57,10 +57,12 @@ struct CAMERA_OPTION {
 
 
 
-
+void set_main_window(void* window);
 
 void create_camera_option(int camera_type, int width, int height, struct CAMERA_OPTION* output_option);
 
 void apply_camera_option(struct CAMERA_OPTION* option);
 
+void activate_camera_control(struct CAMERA_OPTION* option);
 
+void deactivate_camera_control(struct CAMERA_OPTION* option);
