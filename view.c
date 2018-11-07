@@ -10,6 +10,16 @@
 struct CAMERA_OPTION* current_activated_option;
 GLFWwindow* main_window;
 
+struct INPUT_AXIS {
+	double x;
+	double y;
+	int _is_enabled;
+	int _key_states[4];
+};
+
+struct INPUT_AXIS axis;
+
+
 void create_camera_option(int camera_type, int width, int height, struct CAMERA_OPTION* output_option) {
 	output_option->camera_type = camera_type;
 	output_option->frame_buffer_option.width = width;
@@ -83,9 +93,9 @@ void camera_frame_update() {
 		double dy = y - mouse_control.last_y;
 		//printf("CAM_MOVE %lf, %lf\n", dx, dy);
 
-		if (current_activated_option->controller_type == 0) {
-			current_activated_option->orbit_control.angle_x += dy*0.005;
-			current_activated_option->orbit_control.angle_y += dx*0.005;
+		if (current_activated_option->controller_type == CAMERA_CONTROLLER_ORBIT) {
+			current_activated_option->orbit_control.angle_x += dy * 0.005;
+			current_activated_option->orbit_control.angle_y += dx * 0.005;
 
 			double ax = current_activated_option->orbit_control.angle_x;
 			double ay = current_activated_option->orbit_control.angle_y;
@@ -100,11 +110,41 @@ void camera_frame_update() {
 			current_activated_option->position.x += px;
 			current_activated_option->position.y += py;
 			current_activated_option->position.z += pz;
+		}
+		if (current_activated_option->controller_type == CAMERA_CONTROLLER_FPS) {
+
+			double ax = current_activated_option->fps_control.angle_x;
+			double ay = current_activated_option->fps_control.angle_y;
+
+			double fx = cos(ay)*cos(ax);
+			double fz = sin(ay)*cos(ax);
+			double fy = sin(ax);
+
+			double rx = cos(ay);
+			double rz = sin(ay);
+			double ry = 0;
+
+			double speed_time_dt = 0.001;
+
+			double mx = fx * axis.y*speed_time_dt + rx * axis.x*speed_time_dt;
+			double my = fy * axis.y*speed_time_dt + ry * axis.x*speed_time_dt;
+			double mz = fz * axis.y*speed_time_dt + rz * axis.x*speed_time_dt;
+
+
+			current_activated_option->fps_control.position.x += mx;
+			current_activated_option->fps_control.position.y += my;
+			current_activated_option->fps_control.position.z += mz;
+
+			current_activated_option->position = current_activated_option->fps_control.position;
+			current_activated_option->lookat = current_activated_option->fps_control.position;
+			current_activated_option->lookat.x += fx;
+			current_activated_option->lookat.y += fy;
+			current_activated_option->lookat.z += fz;
 
 
 		}
 
-		
+
 
 	}
 
@@ -138,7 +178,7 @@ void camera_frame_update() {
 	);
 }
 
-void cam_key(int key, int action, int mods) {
+void orbit_rotate_toggle(int key, int action, int mods) {
 	if (key == 0) {
 		if (action == 1) {
 			mouse_control.is_active = true;
@@ -146,6 +186,101 @@ void cam_key(int key, int action, int mods) {
 		else {
 			mouse_control.is_active = false;
 		}
+	}
+}
+
+
+
+
+#define AXIS_KEY_UP GLFW_KEY_W
+#define AXIS_KEY_DOWN GLFW_KEY_S
+#define AXIS_KEY_LEFT GLFW_KEY_A
+#define AXIS_KEY_RIGHT GLFW_KEY_D
+
+void clear_axis() {
+	memset(&axis, 0, sizeof(struct INPUT_AXIS));
+}
+
+void enable_axis_keys() {
+	clear_axis();
+	axis._is_enabled = 1;
+}
+
+void disable_axis_keys() {
+	clear_axis();
+}
+
+
+
+void axis_key(int key, int action, int mods) {
+	if (!axis._is_enabled) {
+		return;
+	}
+
+	switch (key)
+	{
+	case AXIS_KEY_UP:
+		axis._key_states[0] = action;
+		break;
+	case AXIS_KEY_DOWN:
+		axis._key_states[1] = action;
+		break;
+	case AXIS_KEY_LEFT:
+		axis._key_states[2] = action;
+		break;
+	case AXIS_KEY_RIGHT:
+		axis._key_states[3] = action;
+		break;
+	default:
+		break;
+	}
+
+	axis.x = axis._key_states[2] + axis._key_states[3];
+	axis.y = axis._key_states[0] + axis._key_states[1];
+}
+
+
+void cam_key(int key, int action, int mods) {
+	if (current_activated_option->controller_type == CAMERA_CONTROLLER_ORBIT) {
+		orbit_rotate_toggle(key, action, mods);
+	}
+	if (current_activated_option->controller_type == CAMERA_CONTROLLER_FPS) {
+		/*int move_forward = 0;
+		int move_right = 0;
+		int move_up = 0;
+		switch (key)
+		{
+		case GLFW_KEY_W:
+			move_forward++;
+			break;
+		case GLFW_KEY_S:
+			move_forward--;
+			break;
+		case GLFW_KEY_A:
+			move_right--;
+			break;
+		case GLFW_KEY_D:
+			move_right++;
+			break;
+
+		default:
+			break;
+		}
+		struct VECTOR3DF forward_vector;
+		struct VECTOR3DF right_vector;
+		struct VECTOR3F up_vector;
+
+		double ax = current_activated_option->fps_control.angle_x;
+		double ay = current_activated_option->fps_control.angle_y;
+
+		double fx = cos(ay)*cos(ax);
+		double fz = sin(ay)*cos(ax);
+		double fy = sin(ax);
+
+		double rx = cos(ay);
+		double rz = sin(ay);
+		double ry = 0*/
+
 	}
 }
 

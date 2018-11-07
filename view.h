@@ -24,6 +24,7 @@ struct ORTHO_OPTION {
 };
 
 struct CAMERA_FPS_CONTROL {
+	struct VECTOR3F position;
 	float angle_y;
 	float angle_x;
 };
@@ -34,6 +35,9 @@ struct CAMERA_ORBIT_CONTROL {
 	float angle_y;
 	float angle_x;
 };
+
+#define CAMERA_CONTROLLER_ORBIT 0
+#define CAMERA_CONTROLLER_FPS 1
 
 struct CAMERA_OPTION {
 	struct VECTOR3F position;
