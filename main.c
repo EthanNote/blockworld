@@ -12,6 +12,7 @@
 #include "rendering.h"
 #include "loader.h"
 #include "view.h"
+#include "input.h"
 
 int main() {
 
@@ -43,11 +44,13 @@ int main() {
 	/*GLuint vbo;
 	glGenBuffers(1, &vbo);*/
 	glEnableClientState(GL_VERTEX_ARRAY);
-	//glPolygonMode(GL_FRONT, GL_LINE);
-	//glPolygonMode(GL_BACK, GL_LINE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT, GL_LINE);
+	glPolygonMode(GL_BACK, GL_LINE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	/*glEnable(GL_DEPTH_TEST);*/
+
+
 
 	/*struct FACE_BUFFER buffer;
 	init_face_buffer(&buffer, 1000);
@@ -64,6 +67,9 @@ int main() {
 
 	struct CAMERA_OPTION cam_opt;
 	create_camera_option(CAMERA_TYPE_PERSPECTIVE, 640, 480, &cam_opt);
+	setup_view_control();
+	init_camera_orbit_control(&cam_opt);
+	input_setup(window);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -72,7 +78,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 		apply_camera_option(&cam_opt);
-
+		camera_frame_update();
 
 		//draw_buffer(&buffer);
 		draw_buffer_list(buffer_list);

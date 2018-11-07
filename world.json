@@ -1,8 +1,10 @@
 {
 	"root":	{
     "children": {
+      
       "0": {
         "children": {
+
           "0": {
             "children": {
             },
@@ -15,24 +17,7 @@
             "level": 0,
             "material": "axis"
           },
-          "3": {
-            "children": {
-            },
-            "level": 0,
-            "material": "axis"
-          }
-        },
-        "level": 1
-      },
-      "4": {
-        "children": {
-          "0": {
-            "children": {
-            },
-            "level": 0,
-            "material": "axis"
-          },
-          "1": {
+          "2": {
             "children": {
             },
             "level": 0,
@@ -45,6 +30,10 @@
             "material": "axis"
           }
         },
+        "level": 1
+      },
+      "1": {
+        "material": "axis",
         "level": 1
       }
     },

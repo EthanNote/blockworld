@@ -37,7 +37,7 @@ struct CAMERA_ORBIT_CONTROL {
 
 struct CAMERA_OPTION {
 	struct VECTOR3F position;
-	struct VECTOR3F direction;
+	struct VECTOR3F lookat;
 	struct VECTOR3F up;
 	int camera_type;
 
@@ -51,6 +51,7 @@ struct CAMERA_OPTION {
 	int controller_type;
 	union {
 		struct CAMERA_FPS_CONTROL fps_control;
+		struct CAMERA_ORBIT_CONTROL orbit_control;
 	};
 };
 
@@ -65,4 +66,11 @@ void apply_camera_option(struct CAMERA_OPTION* option);
 
 void activate_camera_control(struct CAMERA_OPTION* option);
 
+void init_camera_orbit_control(struct CAMERA_OPTION* option);
+
+
 void deactivate_camera_control(struct CAMERA_OPTION* option);
+
+void setup_view_control();
+
+void camera_frame_update();

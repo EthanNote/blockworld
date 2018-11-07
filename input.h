@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdbool.h>
 //check key down event, frame related
 bool input_get_key_down(int key);
 
@@ -22,14 +22,21 @@ bool input_get_mouse_pos(double* px, double* py);
 bool input_get_mouse_move(double* dx, double* dy);
 
 
-typedef void(*ON_KEY_DOWN)(int key);
-typedef void(*ON_KEY_UP)(int key);
+//typedef void(*ON_KEY_DOWN)(int key);
+//typedef void(*ON_KEY_UP)(int key);
 
-typedef void(*KEY_EVENT_HANDLER_FUNC)(int key);
+void bind_input_window(void* window);
 
-void add_key_down_event_handler(KEY_EVENT_HANDLER_FUNC);
 
-void add_key_up_event_handler(KEY_EVENT_HANDLER_FUNC);
+typedef void(*KEY_EVENT_HANDLER_FUNC)(int, int, int);
+
+//void add_key_down_event_handler(KEY_EVENT_HANDLER_FUNC);
+//
+//void add_key_up_event_handler(KEY_EVENT_HANDLER_FUNC);
+
+void add_key_event_handler(KEY_EVENT_HANDLER_FUNC);
+
+void input_setup(void* window);
 
 // typedef void(*ON_MOUSE_DRAG)(double dx, double dy);
 // typedef void(*ON_MOUSE_MOVE)(double x, double y);

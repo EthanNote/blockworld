@@ -7,10 +7,14 @@ struct RAY {
 	VECTOR3DF end_pos;
 };
 
+struct RAY_VERTICAL {
+	VECTOR3DF start_pos;
+	double distance;
+};
+
 struct RAY_HIT_INFO {
 	VECTOR3DF hit_position;
 	WORLD_BLOCK* hit_block;
 	int hit_face;
 };
-
 void ray_cast(RAY* ray, WORLD_BLOCK* root, RAY_HIT_INFO* output_info);
