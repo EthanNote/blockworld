@@ -38,6 +38,18 @@ void add_key_event_handler(KEY_EVENT_HANDLER_FUNC);
 
 void input_setup(void* window);
 
+
+void drag_init();
+void drag_update();
+void drag_stop();
+void drag_get_vector(double *dx, double *dy);
+
+
+//void cursor_lock(double x, double y);
+//void cursor_unlock();
+//void cursor_update();
+//unsigned char cursor_islocked();
+//void cursor_get_lock_drag(double *dx, double *dy);
 // typedef void(*ON_MOUSE_DRAG)(double dx, double dy);
 // typedef void(*ON_MOUSE_MOVE)(double x, double y);
 

@@ -7,10 +7,10 @@
 
 
 
-struct FRAME_BUFFER_OPTION {
-	int width;
-	int height;
-};
+//struct FRAME_BUFFER_OPTION {
+//	int width;
+//	int height;
+//};
 
 
 struct PERSPECTIVE_OPTION {
@@ -34,18 +34,20 @@ struct CAMERA_ORBIT_CONTROL {
 	float distance;
 	float angle_y;
 	float angle_x;
+	unsigned char is_active;
+
 };
 
 #define CAMERA_CONTROLLER_ORBIT 0
 #define CAMERA_CONTROLLER_FPS 1
 
-struct CAMERA_OPTION {
+struct CAMERA {
 	struct VECTOR3F position;
 	struct VECTOR3F lookat;
 	struct VECTOR3F up;
 	int camera_type;
 
-	struct FRAME_BUFFER_OPTION frame_buffer_option;
+	//struct FRAME_BUFFER_OPTION frame_buffer_option;
 
 	union {
 		struct PERSPECTIVE_OPTION perspective_option;
@@ -64,16 +66,18 @@ struct CAMERA_OPTION {
 
 void set_main_window(void* window);
 
-void create_camera_option(int camera_type, int width, int height, struct CAMERA_OPTION* output_option);
+void create_camera(int camera_type, struct CAMERA* output_option);
 
-void apply_camera_option(struct CAMERA_OPTION* option);
+void set_camera_controller(struct CAMERA* camera, int controller_type);
 
-void activate_camera_control(struct CAMERA_OPTION* option);
+void set_active_camera(struct CAMERA* option);
 
-void init_camera_orbit_control(struct CAMERA_OPTION* option);
+void activate_camera_control(struct CAMERA* option);
 
+void init_camera_orbit_control(struct CAMERA* option);
+void init_camera_fps_control(struct CAMERA* camera);
 
-void deactivate_camera_control(struct CAMERA_OPTION* option);
+void deactivate_camera_control(struct CAMERA* option);
 
 void setup_view_control();
 

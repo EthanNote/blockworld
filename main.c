@@ -14,6 +14,8 @@
 #include "view.h"
 #include "input.h"
 
+struct CAMERA camera;
+
 int main() {
 
 	struct WORLD_TREE tree;
@@ -65,20 +67,29 @@ int main() {
 	update_buffer_list_material(buffer_list, material_list);
 	feed_buffer_list(buffer_list);
 
-	struct CAMERA_OPTION cam_opt;
-	create_camera_option(CAMERA_TYPE_PERSPECTIVE, 640, 480, &cam_opt);
+	
+	create_camera(CAMERA_TYPE_PERSPECTIVE, &camera);
+	set_active_camera(&camera);
+	set_main_window(window);
 	setup_view_control();
-	init_camera_orbit_control(&cam_opt);
+	//init_camera_orbit_control(&cam_opt);
+	init_camera_fps_control(&camera);
 	input_setup(window);
+
+	//cursor_lock(0, 0);
+	drag_init();
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+		//cursor_update();
+		drag_update();
+		camera_frame_update();
+
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-		apply_camera_option(&cam_opt);
-		camera_frame_update();
+		set_active_camera(&camera);
 
 		//draw_buffer(&buffer);
 		draw_buffer_list(buffer_list);

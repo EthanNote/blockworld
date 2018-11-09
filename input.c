@@ -3,14 +3,29 @@
 //#include<stdio.h>
 #include<stdlib.h>
 
-static struct HANDLER_FUNC_LIST {
+GLFWwindow* input_window = NULL;
+struct HANDLER_FUNC_LIST* key_event_list = NULL;
+
+struct MOUSE_DRAG_CONTROL {
+
+	bool is_active;
+
+	double dx;
+	double dy;
+
+	double _last_x;
+	double _last_y;
+};
+
+struct MOUSE_DRAG_CONTROL drag_control;
+
+
+
+struct HANDLER_FUNC_LIST {
 	KEY_EVENT_HANDLER_FUNC func;
 	struct HANDLER_FUNC_LIST* next;
 };
 
-//struct HANDLER_FUNC_LIST* key_up_event_list = NULL;
-//struct HANDLER_FUNC_LIST* key_down_event_list = NULL;
-struct HANDLER_FUNC_LIST* key_event_list = NULL;
 
 struct HANDLER_FUNC_LIST* create_func_list_node(KEY_EVENT_HANDLER_FUNC func) {
 	struct HANDLER_FUNC_LIST* pnode = malloc(sizeof(struct HANDLER_FUNC_LIST));
@@ -18,6 +33,18 @@ struct HANDLER_FUNC_LIST* create_func_list_node(KEY_EVENT_HANDLER_FUNC func) {
 	pnode->next = NULL;
 	return pnode;
 }
+
+struct CURSOR_LOCK
+{
+	double x;
+	double y;
+	double dx;
+	double dy;
+	unsigned char enable;
+};
+
+
+struct CURSOR_LOCK _cursor_lock;
 
 bool check_list(struct HANDLER_FUNC_LIST** list, KEY_EVENT_HANDLER_FUNC func) {
 	if (!*list) {
@@ -44,28 +71,7 @@ void add_key_event_handler(KEY_EVENT_HANDLER_FUNC func) {
 	}
 }
 
-//void add_key_up_event_handler(KEY_EVENT_HANDLER_FUNC func) {
-//	if (check_list(&key_up_event_list, func)) {
-//		_add_key_event_handler(func, key_up_event_list);
-//	}
-//}
-//
-//void add_key_down_event_handler(KEY_EVENT_HANDLER_FUNC func) {
-//	if (check_list(&key_down_event_list, func)) {
-//		_add_key_event_handler(func, key_down_event_list);
-//	}
-//}
 
-
-GLFWwindow* input_window = NULL;
-
-
-
-
-
-
-// struct EVENT_HANDLER_LIST default_handler_list;
-// struct EVENT_HANDLER_LIST* current_handler_list;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -73,38 +79,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	for (struct HANDLER_FUNC_LIST* p_list = key_event_list; p_list != NULL; p_list = p_list->next) {
 		p_list->func(key, action, mods);
 	}
-	/*if (key == GLFW_KEY_E && action == GLFW_PRESS)
-		activate_airship();
- */
- //printf("KEY %d %d %d\n", key, action, mods);
 
- //if (action == GLFW_PRESS) {
- //	/*for (int i = 0; i < current_handler_list->tail_index; i++) {
- //		if (current_handler_list->handles[i] && current_handler_list->handles[i]->on_key_down) {
- //			current_handler_list->handles[i]->on_key_down(key);
- //		}
- //	}*/
- //	for (struct HANDLER_FUNC_LIST* p_list = key_down_event_list; p_list != NULL; p_list = p_list->next) {
- //		p_list->func(key, action, mods);
- //	}
- //}
-
- //if (action == GLFW_RELEASE) {
- //	/*for (int i = 0; i < current_handler_list->tail_index; i++) {
- //		if (current_handler_list->handles[i] && current_handler_list->handles[i]->on_key_down) {
- //			current_handler_list->handles[i]->on_key_up(key);
- //		}
- //	}*/
- //	for (struct HANDLER_FUNC_LIST* p_list = key_up_event_list; p_list != NULL; p_list = p_list->next) {
- //		p_list->func(key, action, mods);
- //	}
- //}
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-	/*double x, y;
-	input_get_mouse_pos(&x, &y);
-	printf("KEY %d %d %d %lf %lf\n", button, action, mods, x, y);*/
 	for (struct HANDLER_FUNC_LIST* p_list = key_event_list; p_list != NULL; p_list = p_list->next) {
 		p_list->func(button, action, mods);
 	}
@@ -121,53 +99,78 @@ bool input_get_mouse_pos(double* px, double* py) {
 }
 
 
-// void input_init() {
-// 	init_event_handler_list(&default_handler_list);
-// 	current_handler_list = &default_handler_list;
-// }
 
-// void init_event_handler_list(struct EVENT_HANDLER_LIST* list) {
-// 	int init_capacity = 10;
-// 	list->handles = malloc(sizeof(struct EVENT_HANDLER*)*init_capacity);
-// 	list->count = 0;
-// 	list->capacity = init_capacity;
-// 	list->tail_index = 0;
-// }
 
-// void add_event_handler(struct EVENT_HANDLER* handler, struct EVENT_HANDLER_LIST* handler_list) {
-// 	if (!handler_list) {
-// 		handler_list = current_handler_list;
-// 	}
 
-// 	if (handler_list->tail_index == handler_list->count) {
-// 		if (handler_list->capacity <= handler_list->count) {
-// 			handler_list->handles = realloc(sizeof(struct EVENT_HANDLER*)*handler_list->count * 2);
-// 		}
-// 		handler_list->handles[handler_list->tail_index++] = handler;
-// 		handler_list->count = handler_list->tail_index;
-// 	}
-// 	else {
-// 		for (int i = 0; i < handler_list->tail_index; i++) {
-// 			if (!handler_list->handles[i]) {
-// 				handler_list->handles[i] = handler;
-// 				handler_list->count++;
-// 				break;
-// 			}
 
-// 		}
-// 	}
-// }
+void drag_init() {
+	
+	drag_control.is_active = true;
+	drag_control.dx = 0;
+	drag_control.dy = 0;
+	glfwGetCursorPos(input_window, &drag_control._last_x, &drag_control._last_y);
+}
 
-// void remove_event_handler(struct EVENT_HANDLER* handler, struct EVENT_HANDLER_LIST* handler_list) {
+void drag_stop() {
+	drag_control.is_active = false;
+	drag_control.dx = 0;
+	drag_control.dy = 0;
+}
 
-// 	for (int i = 0;; i < handler_list->count; i++) {
-// 		if (handler_list->handles[i] == handler) {
-// 			handler_list->handles[i] = 0;
-// 			if (i == handler_list->count - 1) {
-// 				handler_list->tail_index--;
-// 			}
-// 			handler_list->count--;
-// 			break;
-// 		}
-// 	}
-// }
+void drag_update() {
+	if (!drag_control.is_active) {
+		return;
+	}
+	double x, y;
+	glfwGetCursorPos(input_window, &x, &y);
+	drag_control.dx = x - drag_control._last_x;
+	drag_control.dy = y - drag_control._last_y;
+	drag_control._last_x = x;
+	drag_control._last_y = y;
+}
+
+
+void drag_get_vector(double *dx, double *dy) {
+	*dx = drag_control.dx;
+	*dy = drag_control.dy;
+}
+
+
+
+
+//void cursor_lock(double x, double y) {
+//	glfwSetCursorPos(input_window, x, y);
+//	glfwGetCursorPos(input_window, &_cursor_lock.x, &_cursor_lock.y);
+//	glfwSetInputMode(input_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//	/*_cursor_lock.x = x;
+//	_cursor_lock.y = y;*/
+//	_cursor_lock.dx = 0.0;
+//	_cursor_lock.dy = 0.0;
+//	_cursor_lock.enable = 1;
+//}
+//void cursor_unlock() {
+//	_cursor_lock.enable = 0;
+//	_cursor_lock.dx = 0;
+//	_cursor_lock.dy = 0;
+//	glfwSetInputMode(input_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+//}
+//
+//unsigned char cursor_islocked() {
+//	return _cursor_lock.enable;
+//}
+//
+//void cursor_get_lock_drag(double *dx, double *dy) {
+//	*dx = _cursor_lock.dx;
+//	*dy = _cursor_lock.dy;
+//}
+//
+//void cursor_update() {
+//	if (_cursor_lock.enable) {
+//		glfwSetCursor(input_window, GLFW_CURSOR_NORMAL);
+//		double x, y;
+//		glfwGetCursorPos(input_window, &x, &y);
+//		_cursor_lock.dx = x - _cursor_lock.x;
+//		_cursor_lock.dy = y - _cursor_lock.y;
+//		glfwSetCursorPos(input_window, _cursor_lock.x, _cursor_lock.y);
+//	}
+//}
