@@ -13,6 +13,8 @@
 #include "loader.h"
 #include "view.h"
 #include "input.h"
+#include "physics.h"
+
 
 struct CAMERA camera;
 
@@ -46,11 +48,11 @@ int main() {
 	/*GLuint vbo;
 	glGenBuffers(1, &vbo);*/
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glPolygonMode(GL_FRONT, GL_LINE);
-	glPolygonMode(GL_BACK, GL_LINE);
+	/*glPolygonMode(GL_FRONT, GL_LINE);
+	glPolygonMode(GL_BACK, GL_LINE);*/
 	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	/*glEnable(GL_DEPTH_TEST);*/
+	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
 
 
 
@@ -79,12 +81,22 @@ int main() {
 	//cursor_lock(0, 0);
 	drag_init();
 
+	struct RAY ray;
+	struct RAY_HIT_INFO hit_info;
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		//cursor_update();
 		drag_update();
 		camera_frame_update();
+		ray.start_pos.x = camera.position.x;
+		ray.start_pos.y = camera.position.y;
+		ray.start_pos.z = camera.position.z;
+
+		ray.end_pos.x = camera.lookat.x;
+		ray.end_pos.y = camera.lookat.y;
+		ray.end_pos.z = camera.lookat.z;
+		ray_cast(&ray, tree.root, &hit_info);
 
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
