@@ -1,6 +1,7 @@
 #include "physics.h"
 #include <stdio.h>
 #include <float.h>
+#include <GLFW/glfw3.h>
 
 int get_in_out_t(double* tx, double* x0, double* bx1, double* bx2, double* tx1, double* tx2) {
 	if (*tx == 0) {
@@ -62,30 +63,6 @@ double min(double x1, double x2, double x3) {
 
 
 
-//int ray_aabb(double x0, double y0, double z0,
-//	double tx, double ty, double tz,
-//	double bx1, double bx2, double by1, double by2, double bz1, double bz2,
-//	double* t_in, double* t_out,
-//	int *cross_order_x, int *cross_order_y, int *cross_order_z
-//	) {
-//	double tx1, ty1, tz1, tx2, ty2, tz2;
-//	double tx_in, tx_out, ty_in, ty_out, tz_in, tz_out;
-//	
-//
-//	CHECK_RETURN(get_in_out_t(&tx, &x0, &bx1, &bx2, &tx1, &tx2));
-//	CHECK_RETURN(get_in_out_t(&ty, &y0, &by1, &by2, &ty1, &ty2));
-//	CHECK_RETURN(get_in_out_t(&tz, &z0, &bz1, &bz2, &tz1, &tz2));
-//	 
-//	UP_ASIGN(tx1, tx2, tx_in, tx_out);
-//	UP_ASIGN(ty1, ty2, ty_in, ty_out);
-//	UP_ASIGN(tz1, tz2, tz_in, tz_out);
-//
-//	if (max(tx_in, ty_in, tz_in) < min(tx_out, ty_out, tz_out)) {
-//		return 1;
-//	}
-//	return 0;
-//
-//}
 
 struct HIT_DETECT_CALC {
 	double tx1, ty1, tz1, tx2, ty2, tz2;
@@ -134,32 +111,44 @@ int hit_detect(struct RAY* ray, struct WORLD_BLOCK* block, struct HIT_DETECT_CAL
 		return 0;
 	}
 
-	struct HIT_DETECT_CALC temp_calc_result;
+	struct HIT_DETECT_CALC block_calc_result;
 	/*if (!hit_detect_calc(ray, block, &temp_calc_result)) {
 		return 0;
 	}*/
-	CHECK_RETURN(hit_detect_calc(ray, block, &temp_calc_result));
+	CHECK_RETURN(hit_detect_calc(ray, block, &block_calc_result));
 
 	if (block->visual_effect.is_visible) {
-		*calc_out = temp_calc_result;
+		*calc_out = block_calc_result;
 		*hit_block = block;
 		return 1;
 	}
 
 	struct HIT_DETECT_CALC current_child_result;
-	int count = 0;
+	struct HIT_DETECT_CALC best_child_result;
+	struct WORLD_BLOCK* child_hit_block = NULL;
+	struct WORLD_BLOCK* best_child_hit_block = NULL;
+	int is_child_hit = 0;
+	//printf("BLK %d %d %d %d\n", block->position.x, block->position.y, block->position.z, block->level);
 	for (int i = 0; i < 8; i++) {
-		int result = hit_detect(ray, block->children[i], &current_child_result, hit_block);
+		int result = hit_detect(ray, block->children[i], &current_child_result, &child_hit_block);
 		if (result) {
-			if (!count || current_child_result.result < temp_calc_result.result) {
-				temp_calc_result = current_child_result;
+			if (!is_child_hit) {
+				is_child_hit = 1;
+				best_child_result = current_child_result;
+				best_child_hit_block = child_hit_block;
+				//printf("-> BLK %d %d %d %d [%d] %d %lf\n", block->position.x, block->position.y, block->position.z, block->level, i, is_child_hit, current_child_result.result);
 			}
-			count++;
+			else if (current_child_result.result < best_child_result.result) {
+				best_child_result = current_child_result;
+				best_child_hit_block = child_hit_block;
+				//printf("=> BLK %d %d %d %d [%d] %d %lf\n", block->position.x, block->position.y, block->position.z, block->level, i, is_child_hit, current_child_result.result);
+			}
 		}
 	}
 
-	if (count) {
-		*calc_out = temp_calc_result;
+	if (is_child_hit) {
+		*calc_out = best_child_result;
+		*hit_block = best_child_hit_block;
 		return 1;
 	}
 
@@ -171,12 +160,77 @@ int hit_detect(struct RAY* ray, struct WORLD_BLOCK* block, struct HIT_DETECT_CAL
 
 int hit_count = 0;
 void ray_cast(struct  RAY* ray, struct WORLD_BLOCK* root, struct RAY_HIT_INFO* output_info) {
-	struct HIT_DETECT_CALC temp_calc_result;
+	struct HIT_DETECT_CALC calc_result;
 	struct WORLD_BLOCK* hit_block = NULL;
-	hit_detect(ray, root, &temp_calc_result, &hit_block);
+	//printf("BEGIN >---------------------------\n");
+	hit_detect(ray, root, &calc_result, &hit_block);
+
+	output_info->hit_block = hit_block;
 
 	if (hit_block) {
-		printf("\rHIT %d: X %d Y %d Z %d L %d     ",hit_count++, hit_block->position.x, hit_block->position.y, hit_block->position.z, hit_block->level);
+		//printf("HIT %d: X %d Y %d Z %d L %d\n\n", hit_count++, hit_block->position.x, hit_block->position.y, hit_block->position.z, hit_block->level);
+		if (calc_result.result == calc_result.tx_in) {
+			if (calc_result.result == calc_result.tx1) { output_info->hit_face = 0; }
+			else { output_info->hit_face = 1; }
+		}
+		else if (calc_result.result == calc_result.ty_in) {
+			if (calc_result.result == calc_result.ty1) { output_info->hit_face = 2; }
+			else { output_info->hit_face = 3; }
+		}
+		else if (calc_result.result == calc_result.tz_in) {
+			if (calc_result.result == calc_result.tz1) { output_info->hit_face = 4; }
+			else { output_info->hit_face = 5; }
+		}
+		else {
+			//ERROR
+			printf("ERROR");
+		}
+
+		//output_info->hit_position = ray->start_pos*(1 - calc_result.result) + ray->end_pos*calc_result.result;
+		output_info->hit_position.x = ray->start_pos.x*(1 - calc_result.result) + ray->end_pos.x*calc_result.result;
+		output_info->hit_position.y = ray->start_pos.y*(1 - calc_result.result) + ray->end_pos.y*calc_result.result;
+		output_info->hit_position.z = ray->start_pos.z*(1 - calc_result.result) + ray->end_pos.z*calc_result.result;
+
 	}
 
 }
+
+
+void draw_block_hit_normal(struct RAY_HIT_INFO* hit_info) {
+
+	//printf("\rF: %d  L:%d    <%d,%d,%d>", hit_info->hit_face, hit_info->hit_block->level, hit_info->hit_block->position.x, hit_info->hit_block->position.y, hit_info->hit_block->position.z);
+
+	if (hit_info->hit_block) {
+		struct VECTOR3DF l1 = hit_info->hit_position;
+		struct VECTOR3DF l2 = hit_info->hit_position;
+		switch (hit_info->hit_face)
+		{
+		case 0:
+			l2.x -= 1;
+			break;
+		case 1:
+			l2.x += 1;
+			break;
+		case 2:
+			l2.y -= 1;
+			break;
+		case 3:
+			l2.y += 1;
+			break;
+		case 4:
+			l2.z -= 1;
+			break;
+		case 5:
+			l2.z += 1;
+			break;
+		default:
+			break;
+		}
+		glBegin(GL_LINES);
+		glColor3f(1, 1, 1);
+		glVertex3f(l1.x, l1.y, l1.z);
+		glVertex3f(l2.x, l2.y, l2.z);
+		glEnd();
+	}
+}
+

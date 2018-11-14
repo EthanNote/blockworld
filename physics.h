@@ -21,3 +21,5 @@ struct RAY_HIT_INFO {
 int hit_detect(struct RAY* ray, struct WORLD_BLOCK* block, struct HIT_DETECT_CALC* calc_out, struct WORLD_BLOCK** hit_block);
 
 void ray_cast(struct  RAY* ray, struct WORLD_BLOCK* root, struct RAY_HIT_INFO* output_info);
+
+void draw_block_hit_normal(struct RAY_HIT_INFO* hit_info);
