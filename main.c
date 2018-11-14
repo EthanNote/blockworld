@@ -14,9 +14,10 @@
 #include "view.h"
 #include "input.h"
 #include "physics.h"
-
+#include "crafting.h"
 
 struct CAMERA camera;
+struct CRAFTING_BOX crafting_box;
 
 int main() {
 
@@ -106,6 +107,12 @@ int main() {
 		//draw_buffer(&buffer);
 		draw_buffer_list(buffer_list);
 
+		if (hit_info.hit_block) {
+			draw_block_hit_normal(&hit_info);
+			crafting_box.level = 1;
+			set_crafting_box_position(&crafting_box, &hit_info);
+			draw_crafting_box(&crafting_box);
+		}
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 
