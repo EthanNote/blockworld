@@ -92,9 +92,9 @@ void calc_visible_nodes(struct WORLD_BLOCK* root, VISIBLE_EVAL_FUNC eval) {
 
 }
 
-void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
+int insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
 	if (tree->level <= node->level)
-		return;
+		return 0;
 
 	if (node->position.x >= tree->position.x && node->position.x < tree->position.x | (0x01 << (tree->level - 1)) &&
 		node->position.y >= tree->position.y && node->position.y < tree->position.y | (0x01 << (tree->level - 1)) &&
@@ -103,7 +103,7 @@ void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
 	}
 	else {
 
-		return;
+		return 0;
 	}
 
 	struct WORLD_BLOCK* current_node = tree;
@@ -120,7 +120,9 @@ void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
 	int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
 	if (!current_node->children[index]) {
 		current_node->children[index] = node;
+		return 1;
 	}
+	return 0;
 
 }
 

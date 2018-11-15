@@ -62,7 +62,7 @@ struct WORLD_BLOCK_QUERY_RESULT{
 ///
 /// \param tree
 /// \param block
-void insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node);
+int insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node);
 
 
 ///

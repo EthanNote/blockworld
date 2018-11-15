@@ -99,7 +99,7 @@ void camera_frame_update() {
 		double rz = cos(ay);
 		double ry = 0;
 
-		double speed_time_dt = 0.01;
+		double speed_time_dt = 0.05;
 
 		//printf("AXIS: %lf, %lf\n", axis.x, axis.y);
 

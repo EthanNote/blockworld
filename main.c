@@ -17,7 +17,7 @@
 #include "crafting.h"
 
 struct CAMERA camera;
-struct CRAFTING_BOX crafting_box;
+//struct CRAFTING_BOX crafting_box;
 
 int main() {
 
@@ -81,6 +81,7 @@ int main() {
 
 	//cursor_lock(0, 0);
 	drag_init();
+	init_crafting_control(&tree);
 
 	struct RAY ray;
 	struct RAY_HIT_INFO hit_info;
@@ -107,12 +108,13 @@ int main() {
 		//draw_buffer(&buffer);
 		draw_buffer_list(buffer_list);
 
-		if (hit_info.hit_block) {
+		crafting_update(&hit_info);
+		/*if (hit_info.hit_block) {
 			draw_block_hit_normal(&hit_info);
 			crafting_box.level = 1;
 			set_crafting_box_position(&crafting_box, &hit_info);
 			draw_crafting_box(&crafting_box);
-		}
+		}*/
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 

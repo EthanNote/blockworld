@@ -2,6 +2,10 @@
 
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include "input.h"
+#include "model.h"
+#include "view.h"
+
 void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hit_info) {
 	box->x = hit_info->hit_block->position.x;
 	box->y = hit_info->hit_block->position.y;
@@ -9,9 +13,9 @@ void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hi
 	int mask = (-1) << box->level;
 	int crafting_size = 1 << box->level;
 	int block_size = 1 << (hit_info->hit_block->level);
-	box->x &= mask;
-	box->y &= mask;
-	box->z &= mask;
+	//box->x &= mask;
+	//box->y &= mask;
+	//box->z &= mask;
 
 	//printf("\rF: %d  L:%d    <%d,%d,%d>", hit_info->hit_face, hit_info->hit_block->level, hit_info->hit_block->position.x, hit_info->hit_block->position.y, hit_info->hit_block->position.z);
 
@@ -19,6 +23,7 @@ void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hi
 	switch (hit_info->hit_face)
 	{
 	case 0:
+		box->x &= mask;
 		if (box->level <= hit_info->hit_block->level || !((~mask) & hit_info->hit_block->position.x)) {
 			box->x -= crafting_size;
 		}
@@ -27,6 +32,7 @@ void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hi
 		box->z = (int)hit_info->hit_position.z & mask;
 		break;
 	case 2:
+		box->y &= mask;
 		if (box->level <= hit_info->hit_block->level || !((~mask) & hit_info->hit_block->position.y)) {
 			box->y -= crafting_size;
 		}
@@ -35,6 +41,7 @@ void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hi
 		box->z = (int)hit_info->hit_position.z & mask;
 		break;
 	case 4:
+		box->z &= mask;
 		if (box->level <= hit_info->hit_block->level || !((~mask) & hit_info->hit_block->position.z)) {
 			box->z -= crafting_size;
 		}
@@ -45,21 +52,21 @@ void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hi
 
 	case 1:
 		if (box->level <= hit_info->hit_block->level || !((~mask) & (hit_info->hit_block->position.x + block_size))) {
-			box->x += crafting_size;
+			box->x += block_size;
 		}
 		box->y = (int)hit_info->hit_position.y & mask;
 		box->z = (int)hit_info->hit_position.z & mask;
 		break;
 	case 3:
 		if (box->level <= hit_info->hit_block->level || !((~mask) & (hit_info->hit_block->position.y + block_size))) {
-			box->y += crafting_size;
+			box->y += block_size;
 		}
 		box->x = (int)hit_info->hit_position.x & mask;
 		box->z = (int)hit_info->hit_position.z & mask;
 		break;
 	case 5:
 		if (box->level <= hit_info->hit_block->level || !((~mask) & (hit_info->hit_block->position.z + block_size))) {
-			box->z += crafting_size;
+			box->z += block_size;
 		}
 		box->x = (int)hit_info->hit_position.x & mask;
 		box->y = (int)hit_info->hit_position.y & mask;
@@ -70,8 +77,8 @@ void set_crafting_box_position(struct CRAFTING_BOX* box, struct RAY_HIT_INFO* hi
 
 }
 
+static float buffer[72];
 void draw_crafting_box(struct CRAFTING_BOX* box) {
-	static float buffer[72];
 	int size = 1 << box->level;
 	for (int i = 0; i < 72; i += 3) {
 		buffer[i] = box->x;
@@ -87,13 +94,50 @@ void draw_crafting_box(struct CRAFTING_BOX* box) {
 	for (int i = 0; i < sizeof(inc) / sizeof(int); i++) {
 		buffer[inc[i]] += size;
 	}
-	glBegin(GL_LINES);
-	for (int i = 0; i < 72; i += 6) {
-		glVertex3fv(buffer + i);
-		glVertex3fv(buffer + i + 3);
-	}
-	glEnd();
-	/*glVertexPointer(3, GL_FLOAT, 3*sizeof(float), buffer);
-	glDrawArrays(GL_LINES, 0, 12);*/
+	//glBegin(GL_LINES);
+	//for (int i = 0; i < 72; i += 6) {
+	//	glVertex3fv(buffer + i);
+	//	glVertex3fv(buffer + i + 3);
+	//}
+	//glEnd();
+	//glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, &buffer[0]);
+	glDrawArrays(GL_LINES, 0, 24);
+	//glDisableClientState(GL_VERTEX_ARRAY);
+}
 
+
+
+
+
+void put_block(struct CRAFTING_BOX* box, struct WORLD_TREE* tree) {
+	printf("CRF %d %d %d %d\n", box->x, box->y, box->z, box->level);
+}
+
+
+
+struct CRAFTING_BOX crafting_box;
+struct WORLD_TREE* crafting_tree;
+struct RAY_HIT_INFO *last_hit_info = NULL;
+void crafting_update(struct RAY_HIT_INFO *hit_info) {
+	last_hit_info = hit_info;
+	if (hit_info->hit_block) {
+		draw_block_hit_normal(hit_info);
+		crafting_box.level = 1;
+		set_crafting_box_position(&crafting_box, hit_info);
+		draw_crafting_box(&crafting_box);
+	}
+}
+
+void crafting_key(int key, int action, int mods) {
+	if (key == 0 && action) {
+		if (last_hit_info && last_hit_info->hit_block) {
+			put_block(&crafting_box, crafting_tree);
+		}
+	}
+}
+
+void init_crafting_control(struct WORLD_TREE* tree) {
+	crafting_tree = tree;
+	add_key_event_handler(crafting_key);
 }

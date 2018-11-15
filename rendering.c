@@ -246,6 +246,7 @@ void draw_buffer_list(struct BUFFER_LIST* buffer_list) {
 			draw_buffer(facebuffer);
 		}
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 struct BUFFER_LIST* create_buffer_list_from_materials(
