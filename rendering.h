@@ -86,6 +86,8 @@ void draw_buffer_list(struct BUFFER_LIST* buffer_list);
 
 void init_face_buffer(struct FACE_BUFFER* facebuffer, int size);
 
+void clean_face_buffer(struct FACE_BUFFER* facebuffer);
+
 void resize_face_buffer(struct FACE_BUFFER* facebuffer, int size);
 
 //void init_face_buffer_writer(struct FACEBUFFERWRITER* facebufferwriter, struct FACEBUFFER* facebuffer   );

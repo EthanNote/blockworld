@@ -31,6 +31,10 @@ void init_face_buffer(struct FACE_BUFFER* facebuffer, int size) {
 	//pthread_rwlock_init(&facebuffer->buffer_lock, NULL);
 }
 
+void clean_face_buffer(struct FACE_BUFFER* facebuffer) {
+	facebuffer->facecount = 0;
+}
+
 void resize_face_buffer(struct FACE_BUFFER* facebuffer, int size) {
 	facebuffer->data = realloc(facebuffer->data, size * sizeof(struct FACE));
 	facebuffer->capasity = size;
@@ -186,7 +190,9 @@ void fill_face_buffer(struct WORLD_BLOCK* node, struct FACE_BUFFER* facebuffer) 
 		for (int i = 0; i < 6; i++) {
 			if (node->visual_effect.blocked_faces ^ (0x01 << i)) {
 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);
-
+				if (facebuffer->facecount >= facebuffer->capasity) {
+					resize_face_buffer(facebuffer, facebuffer->capasity * 2);
+				}
 				fill_face(node, i, facebuffer->data + facebuffer->facecount);
 				facebuffer->facecount++;
 
@@ -316,6 +322,9 @@ void fill_buffer_list(
 			if (~node->visual_effect.blocked_faces & (0x01 << j)) {
 				//pthread_rwlock_wrlock(&facebuffer->buffer_lock);
 				struct FACE_BUFFER* facebuffer = &buffer_list->named_buffers[i].facebuffer[j];
+				if (facebuffer->facecount >= facebuffer->capasity) {
+					resize_face_buffer(facebuffer, facebuffer->capasity * 2);
+				}
 				fill_face(node, j, facebuffer->data + facebuffer->facecount);
 				facebuffer->facecount++;
 
