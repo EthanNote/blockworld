@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "input.h"
 #include "model.h"
 #include "view.h"
@@ -112,6 +113,11 @@ void draw_crafting_box(struct CRAFTING_BOX* box) {
 
 void put_block(struct CRAFTING_BOX* box, struct WORLD_TREE* tree) {
 	printf("CRF %d %d %d %d\n", box->x, box->y, box->z, box->level);
+	struct WORLD_BLOCK* new_block=create_block(box->x, box->y, box->z, box->level);
+	if (!insert_block(tree, new_block)) {
+		printf("FAILED\n");
+		free(new_block);
+	}
 }
 
 
@@ -123,7 +129,7 @@ void crafting_update(struct RAY_HIT_INFO *hit_info) {
 	last_hit_info = hit_info;
 	if (hit_info->hit_block) {
 		draw_block_hit_normal(hit_info);
-		crafting_box.level = 1;
+		crafting_box.level = 0;
 		set_crafting_box_position(&crafting_box, hit_info);
 		draw_crafting_box(&crafting_box);
 	}

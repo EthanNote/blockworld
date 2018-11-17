@@ -2,6 +2,7 @@
 #include<GL/glew.h>
 #include<GLFW/glfw3.h>
 #include<GL/GLU.h>
+#include<time.h>
 
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32.lib")
@@ -22,10 +23,22 @@ struct CAMERA camera;
 int main() {
 
 	struct WORLD_TREE tree;
-	load_world(&tree, "world.json");
+	/*load_world(&tree, "world.json");
+	calc_positions(&tree);
+	calc_visible_nodes(tree.root, NULL);
+	calc_blocked_faces(tree.root);*/
+
+	tree.root = create_block(0, 0, 0, 16);
+	for (int i = 0; i < 1000; i++) {
+		for (int j = 0; j < 1000; j++) {
+			insert_block(&tree, create_block(i, 0, j, 0));
+		}
+	}
 	calc_positions(&tree);
 	calc_visible_nodes(tree.root, NULL);
 	calc_blocked_faces(tree.root);
+
+
 	dump_world(&tree, "out.json");
 
 	GLFWwindow* window;
@@ -49,8 +62,8 @@ int main() {
 	/*GLuint vbo;
 	glGenBuffers(1, &vbo);*/
 	glEnableClientState(GL_VERTEX_ARRAY);
-	/*glPolygonMode(GL_FRONT, GL_LINE);
-	glPolygonMode(GL_BACK, GL_LINE);*/
+	glPolygonMode(GL_FRONT, GL_LINE);
+	glPolygonMode(GL_BACK, GL_LINE);
 	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
@@ -65,12 +78,12 @@ int main() {
 
 	struct BLOCK_MATERIAL_LIST* material_list = create_block_material_list();
 	load_material("materials.json", material_list);
-	struct BUFFER_LIST* buffer_list = create_buffer_list_from_materials(material_list, 100);
+	struct BUFFER_LIST* buffer_list = create_buffer_list_from_materials(material_list, 1);
 	fill_buffer_list(tree.root, buffer_list);
 	update_buffer_list_material(buffer_list, material_list);
 	feed_buffer_list(buffer_list);
 
-	
+
 	create_camera(CAMERA_TYPE_PERSPECTIVE, &camera);
 	set_active_camera(&camera);
 	set_main_window(window);
@@ -88,6 +101,31 @@ int main() {
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+		int clock_begin = 0;
+		int time1 = 0;
+		int time2 = 0;
+		int time3 = 0;
+		int time4 = 0;
+		clock_begin = clock();
+
+		if (tree.dirty) {
+			for (int i = 0; i < buffer_list->count; i++) {
+				for (int j = 0; j < 6; j++) {
+					clean_face_buffer(&buffer_list->named_buffers[i].facebuffer[j]);
+				}
+			}
+			calc_positions(&tree);
+			time1 = clock();
+			calc_visible_nodes(tree.root, NULL);
+			time2 = clock();
+			calc_blocked_faces(tree.root);
+			time3 = clock();
+			fill_buffer_list(tree.root, buffer_list);
+			feed_buffer_list(buffer_list);
+			tree.dirty = 0;
+			time4 = clock();
+			printf("TIME: %d %d %d %d\n", time1 - clock_begin, time2 - clock_begin, time3 - clock_begin, time4 - clock_begin);
+		}
 		//cursor_update();
 		drag_update();
 		camera_frame_update();
@@ -102,7 +140,7 @@ int main() {
 
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 		set_active_camera(&camera);
 
 		//draw_buffer(&buffer);
@@ -120,6 +158,10 @@ int main() {
 
 		/* Poll for and process events */
 		glfwPollEvents();
+
+		
+
+		
 	}
 
 	glfwTerminate();
