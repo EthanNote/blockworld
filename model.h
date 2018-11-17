@@ -48,6 +48,7 @@ struct WORLD_SIZE_CONFIG{
 
 struct WORLD_TREE{
     struct WORLD_BLOCK* root;
+	int dirty;
 };
 
 struct WORLD_BLOCK_QUERY_RESULT{
@@ -62,7 +63,7 @@ struct WORLD_BLOCK_QUERY_RESULT{
 ///
 /// \param tree
 /// \param block
-int insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node);
+int insert_block(struct WORLD_TREE* tree, struct WORLD_BLOCK* node);
 
 
 ///

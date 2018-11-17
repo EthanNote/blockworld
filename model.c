@@ -92,13 +92,14 @@ void calc_visible_nodes(struct WORLD_BLOCK* root, VISIBLE_EVAL_FUNC eval) {
 
 }
 
-int insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
-	if (tree->level <= node->level)
+int insert_block(struct WORLD_TREE* tree, struct WORLD_BLOCK* node) {
+	struct WORLD_BLOCK* root = tree->root;
+	if (root->level <= node->level)
 		return 0;
 
-	if (node->position.x >= tree->position.x && node->position.x < tree->position.x | (0x01 << (tree->level - 1)) &&
-		node->position.y >= tree->position.y && node->position.y < tree->position.y | (0x01 << (tree->level - 1)) &&
-		node->position.z >= tree->position.z && node->position.z < tree->position.z | (0x01 << (tree->level - 1))) {
+	if (node->position.x >= root->position.x && node->position.x < root->position.x | (0x01 << (root->level - 1)) &&
+		node->position.y >= root->position.y && node->position.y < root->position.y | (0x01 << (root->level - 1)) &&
+		node->position.z >= root->position.z && node->position.z < root->position.z | (0x01 << (root->level - 1))) {
 
 	}
 	else {
@@ -106,7 +107,7 @@ int insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
 		return 0;
 	}
 
-	struct WORLD_BLOCK* current_node = tree;
+	struct WORLD_BLOCK* current_node = root;
 	while (current_node->level - node->level > 1) {
 		int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
 
@@ -120,7 +121,9 @@ int insert_block(struct WORLD_BLOCK* tree, struct WORLD_BLOCK* node) {
 	int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
 	if (!current_node->children[index]) {
 		current_node->children[index] = node;
+		tree->dirty = 1;
 		return 1;
+
 	}
 	return 0;
 
@@ -172,87 +175,99 @@ void calc_positions(struct WORLD_TREE* tree) {
 	calc_child_node_position(tree->root);
 }
 
-void add_block_flag(struct WORLD_BLOCK* node, unsigned char flag) {
-	if (!node) {
-		return;
-	}
-	node->visual_effect.blocked_faces |= flag;
-	//if (node->visual_effect.is_visible) {
-	//	return;
-	//}
-	for (unsigned char i = 0; i < 8; i++) {
-		if (!(i&flag)) {
-			add_block_flag(node->children[i], flag);
-		}
-	}
+//void add_block_flag(struct WORLD_BLOCK* node, unsigned char flag) {
+//	if (!node) {
+//		return;
+//	}
+//	node->visual_effect.blocked_faces |= flag;
+//	//if (node->visual_effect.is_visible) {
+//	//	return;
+//	//}
+//	// 000001 0 2 4 6  000 010 100 110
+//	// 000010 1 3 5 7  001 011 101 111
+//	// 000100 0 1 4 5  000 001 100 101
+//	// 001000 2 3 6 7
+//	// 010000 0 1 2 3
+//	// 100000 4 5 6 7
+//	for (unsigned char i = 0; i < 8; i++) {
+//		if (!(i&flag)) {
+//			add_block_flag(node->children[i], flag);
+//		}
+//	}
+//}
+//
+//#define add_block_flag_x_negative(node) add_block_flag(node, 0x01)
+//#define add_block_flag_x_positive(node) add_block_flag(node, 0x02)
+//#define add_block_flag_y_negative(node) add_block_flag(node, 0x04)
+//#define add_block_flag_y_positive(node) add_block_flag(node, 0x08)
+//#define add_block_flag_z_negative(node) add_block_flag(node, 0x10)
+//#define add_block_flag_z_positive(node) add_block_flag(node, 0x20)
+
+void add_block_flag_x_negative(struct WORLD_BLOCK* node) {
+	if (!node) { return; }
+	node->visual_effect.blocked_faces |= 0x01;
+	if (node->visual_effect.is_visible) { return; }
+
+	add_block_flag_x_negative(node->children[0]);
+	add_block_flag_x_negative(node->children[2]);
+	add_block_flag_x_negative(node->children[4]);
+	add_block_flag_x_negative(node->children[6]);
 }
 
-#define add_block_flag_x_negative(node) add_block_flag(node, 0x01)
-#define add_block_flag_x_positive(node) add_block_flag(node, 0x02)
-#define add_block_flag_y_negative(node) add_block_flag(node, 0x04)
-#define add_block_flag_y_positive(node) add_block_flag(node, 0x08)
-#define add_block_flag_z_negative(node) add_block_flag(node, 0x10)
-#define add_block_flag_z_positive(node) add_block_flag(node, 0x20)
+void add_block_flag_x_positive(struct WORLD_BLOCK* node) {
+	if (!node) { return; }
+	node->visual_effect.blocked_faces |= 0x02;
+	if (node->visual_effect.is_visible) { return; }
 
-//void add_block_flag_x_negative(struct WORLD_BLOCK* node) {
-//	node->visual_effect.blocked_faces |= 0x01;
-//	if (node->visual_effect.is_visible) { return; }
-//
-//	add_block_flag_x_negative(node->children[0]);
-//	add_block_flag_x_negative(node->children[2]);
-//	add_block_flag_x_negative(node->children[4]);
-//	add_block_flag_x_negative(node->children[6]);
-//}
+	add_block_flag_x_positive(node->children[1]);
+	add_block_flag_x_positive(node->children[3]);
+	add_block_flag_x_positive(node->children[5]);
+	add_block_flag_x_positive(node->children[7]);
+}
 
-//void add_block_flag_x_positive(struct WORLD_BLOCK* node) {
-//	node->visual_effect.blocked_faces |= 0x02;
-//	if (node->visual_effect.is_visible) { return; }
-//
-//	add_block_flag_x_positive(node->children[1]);
-//	add_block_flag_x_positive(node->children[3]);
-//	add_block_flag_x_positive(node->children[5]);
-//	add_block_flag_x_positive(node->children[7]);
-//}
-//
-//void add_block_flag_y_negative(struct WORLD_BLOCK* node) {
-//	node->visual_effect.blocked_faces |= 0x04;
-//	if (node->visual_effect.is_visible) { return; }
-//
-//	add_block_flag_y_negative(node->children[0]);
-//	add_block_flag_y_negative(node->children[1]);
-//	add_block_flag_y_negative(node->children[4]);
-//	add_block_flag_y_negative(node->children[5]);
-//}
-//
-//void add_block_flag_y_positive(struct WORLD_BLOCK* node) {
-//	node->visual_effect.blocked_faces |= 0x08;
-//	if (node->visual_effect.is_visible) { return; }
-//
-//	add_block_flag_y_positive(node->children[2]);
-//	add_block_flag_y_positive(node->children[3]);
-//	add_block_flag_y_positive(node->children[6]);
-//	add_block_flag_y_positive(node->children[7]);
-//}
-//
-//void add_block_flag_z_negative(struct WORLD_BLOCK* node) {
-//	node->visual_effect.blocked_faces |= 0x10;
-//	if (node->visual_effect.is_visible) { return; }
-//
-//	add_block_flag_z_negative(node->children[0]);
-//	add_block_flag_z_negative(node->children[1]);
-//	add_block_flag_z_negative(node->children[2]);
-//	add_block_flag_z_negative(node->children[3]);
-//}
-//
-//void add_block_flag_z_positive(struct WORLD_BLOCK* node) {
-//	node->visual_effect.blocked_faces |= 0x20;
-//	if (node->visual_effect.is_visible) { return; }
-//
-//	add_block_flag_z_positive(node->children[4]);
-//	add_block_flag_z_positive(node->children[5]);
-//	add_block_flag_z_positive(node->children[6]);
-//	add_block_flag_z_positive(node->children[7]);
-//}
+void add_block_flag_y_negative(struct WORLD_BLOCK* node) {
+	if (!node) { return; }
+	node->visual_effect.blocked_faces |= 0x04;
+	if (node->visual_effect.is_visible) { return; }
+
+	add_block_flag_y_negative(node->children[0]);
+	add_block_flag_y_negative(node->children[1]);
+	add_block_flag_y_negative(node->children[4]);
+	add_block_flag_y_negative(node->children[5]);
+}
+
+void add_block_flag_y_positive(struct WORLD_BLOCK* node) {
+	if (!node) { return; }
+	node->visual_effect.blocked_faces |= 0x08;
+	if (node->visual_effect.is_visible) { return; }
+
+	add_block_flag_y_positive(node->children[2]);
+	add_block_flag_y_positive(node->children[3]);
+	add_block_flag_y_positive(node->children[6]);
+	add_block_flag_y_positive(node->children[7]);
+}
+
+void add_block_flag_z_negative(struct WORLD_BLOCK* node) {
+	if (!node) { return; }
+	node->visual_effect.blocked_faces |= 0x10;
+	if (node->visual_effect.is_visible) { return; }
+
+	add_block_flag_z_negative(node->children[0]);
+	add_block_flag_z_negative(node->children[1]);
+	add_block_flag_z_negative(node->children[2]);
+	add_block_flag_z_negative(node->children[3]);
+}
+
+void add_block_flag_z_positive(struct WORLD_BLOCK* node) {
+	if (!node) { return; }
+	node->visual_effect.blocked_faces |= 0x20;
+	if (node->visual_effect.is_visible) { return; }
+
+	add_block_flag_z_positive(node->children[4]);
+	add_block_flag_z_positive(node->children[5]);
+	add_block_flag_z_positive(node->children[6]);
+	add_block_flag_z_positive(node->children[7]);
+}
 
 void calc_blocked_faces_x(struct WORLD_BLOCK* x1, struct WORLD_BLOCK* x2) {
 	if (!x1 || !x2) {
@@ -284,10 +299,10 @@ void calc_blocked_faces_y(struct WORLD_BLOCK* y1, struct WORLD_BLOCK* y2) {
 		add_block_flag_y_positive(y1);
 	}
 
-	calc_blocked_faces_x(y1->children[2], y2->children[0]);
-	calc_blocked_faces_x(y1->children[3], y2->children[1]);
-	calc_blocked_faces_x(y1->children[6], y2->children[4]);
-	calc_blocked_faces_x(y1->children[7], y2->children[5]);
+	calc_blocked_faces_y(y1->children[2], y2->children[0]);
+	calc_blocked_faces_y(y1->children[3], y2->children[1]);
+	calc_blocked_faces_y(y1->children[6], y2->children[4]);
+	calc_blocked_faces_y(y1->children[7], y2->children[5]);
 }
 
 void calc_blocked_faces_z(struct WORLD_BLOCK* z1, struct WORLD_BLOCK* z2) {
@@ -302,10 +317,10 @@ void calc_blocked_faces_z(struct WORLD_BLOCK* z1, struct WORLD_BLOCK* z2) {
 		add_block_flag_z_positive(z1);
 	}
 
-	calc_blocked_faces_x(z1->children[4], z2->children[0]);
-	calc_blocked_faces_x(z1->children[5], z2->children[1]);
-	calc_blocked_faces_x(z1->children[6], z2->children[2]);
-	calc_blocked_faces_x(z1->children[7], z2->children[3]);
+	calc_blocked_faces_z(z1->children[4], z2->children[0]);
+	calc_blocked_faces_z(z1->children[5], z2->children[1]);
+	calc_blocked_faces_z(z1->children[6], z2->children[2]);
+	calc_blocked_faces_z(z1->children[7], z2->children[3]);
 }
 
 void calc_blocked_faces(struct WORLD_BLOCK* node) {
