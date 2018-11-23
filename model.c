@@ -114,6 +114,45 @@ int insert_block(struct WORLD_TREE* tree, struct WORLD_BLOCK* node) {
 		if (!current_node->children[index]) {
 			int level_mask = LEVELMASK(current_node->level - 1);
 			current_node->children[index] = create_block(node->position.x & level_mask, node->position.y & level_mask, node->position.z & level_mask, current_node->level - 1);
+			current_node->children[index]->parent = current_node;
+			current_node->children[index]->index = index;
+		}
+		current_node = current_node->children[index];
+	}
+	int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
+	if (!current_node->children[index]) {
+		current_node->children[index] = node;
+		node->parent = current_node;
+		node->index = index;
+		tree->dirty = 1;
+		return 1;
+
+	}
+	return 0;
+
+}
+
+int insert_block_ex(struct WORLD_BLOCK* root, struct WORLD_BLOCK* node, int is_replace, struct WORLD_BLOCK** old_node) {
+	if (root->level <= node->level)
+		return 0;
+
+	if (node->position.x >= root->position.x && node->position.x < root->position.x | (0x01 << (root->level - 1)) &&
+		node->position.y >= root->position.y && node->position.y < root->position.y | (0x01 << (root->level - 1)) &&
+		node->position.z >= root->position.z && node->position.z < root->position.z | (0x01 << (root->level - 1))) {
+
+	}
+	else {
+
+		return 0;
+	}
+
+	struct WORLD_BLOCK* current_node = root;
+	while (current_node->level - node->level > 1) {
+		int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
+
+		if (!current_node->children[index]) {
+			int level_mask = LEVELMASK(current_node->level - 1);
+			current_node->children[index] = create_block(node->position.x & level_mask, node->position.y & level_mask, node->position.z & level_mask, current_node->level - 1);
 
 		}
 		current_node = current_node->children[index];
@@ -121,9 +160,14 @@ int insert_block(struct WORLD_TREE* tree, struct WORLD_BLOCK* node) {
 	int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
 	if (!current_node->children[index]) {
 		current_node->children[index] = node;
-		tree->dirty = 1;
+		old_node = NULL;
 		return 1;
 
+	}
+	else {
+		*old_node = current_node->children[index];
+		current_node->children[index] = node;
+		return 1;
 	}
 	return 0;
 
@@ -352,5 +396,52 @@ void calc_blocked_faces(struct WORLD_BLOCK* node) {
 	calc_blocked_faces(node->children[5]);
 	calc_blocked_faces(node->children[6]);
 	calc_blocked_faces(node->children[7]);
+
+}
+
+struct WORLD_BLOCK* find_block(struct WORLD_BLOCK* root, int x, int y, int z, int level) {
+	if (root->level <= level)
+		return 0;
+
+	if (x >= root->position.x && x < root->position.x | (0x01 << (root->level - 1)) &&
+		y >= root->position.y && y < root->position.y | (0x01 << (root->level - 1)) &&
+		z >= root->position.z && z < root->position.z | (0x01 << (root->level - 1))) {
+
+	}
+	else {
+
+		return 0;
+	}
+
+	struct WORLD_BLOCK* current_node = root;
+	while (current_node->level - level > 0) {
+		int index = get_index(x, y, z, current_node->level - 1);
+
+		if (!current_node->children[index]) {
+			/*int level_mask = LEVELMASK(current_node->level - 1);
+			current_node->children[index] = create_block(node->position.x & level_mask, node->position.y & level_mask, node->position.z & level_mask, current_node->level - 1);*/
+			return current_node;
+		}
+		current_node = current_node->children[index];
+	}
+
+	return current_node;
+	/*int index = get_index(node->position.x, node->position.y, node->position.z, current_node->level - 1);
+	if (!current_node->children[index]) {
+		current_node->children[index] = node;
+		old_node = NULL;
+		return 1;
+
+	}
+	else {
+		*old_node = current_node->children[index];
+		current_node->children[index] = node;
+		return 1;
+	}
+	return 0;*/
+}
+
+
+void transfer_tree(struct WORLD_TREE* src, struct WORLD_TREE* target, struct WORLD_BLOCK* node) {
 
 }

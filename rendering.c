@@ -223,7 +223,7 @@ void feed_buffer_list(struct BUFFER_LIST* buffer_list) {
 }
 
 void apply_face_material(struct FACE_MATERIAL* face_material) {
-	glColor3fv(face_material->final_color);
+	glColor3fv(face_material->main_color);
 }
 
 void draw_buffer(struct FACE_BUFFER* facebuffer) {
@@ -263,10 +263,10 @@ struct BUFFER_LIST* create_buffer_list_from_materials(
 	buffer_list->count = block_material_list->count;
 	buffer_list->capacity = buffer_list->count;
 	buffer_list->named_buffers
-		= malloc(sizeof(struct NAMED_BLOCK_FACE_BUFFER)*buffer_list->capacity);
+		= malloc(sizeof(struct BLOCK_BUFFER)*buffer_list->capacity);
 
 	for (int i = 0; i < buffer_list->count; i++) {
-		strcpy(buffer_list->named_buffers[i].name, block_material_list->materials[i].name);
+		strcpy(buffer_list->named_buffers[i].material_name, block_material_list->materials[i].material_name);
 		for (int j = 0; j < 6; j++) {
 			init_face_buffer(&buffer_list->named_buffers[i].facebuffer[j], init_face_buffer_capacity);
 			struct FACEBUFFER_GL_CONTEXT* gl_context = buffer_list->named_buffers[i].facebuffer[j].low_level_context;
@@ -277,9 +277,51 @@ struct BUFFER_LIST* create_buffer_list_from_materials(
 	return buffer_list;
 }
 
+void init_buffer_list_from_materials(
+	struct BLOCK_MATERIAL_LIST* block_material_list,
+	int init_face_buffer_capacity,
+	struct BUFFER_LIST* buffer_list
+) {
+	//struct BUFFER_LIST* buffer_list = malloc(sizeof(struct BUFFER_LIST));
+	buffer_list->count = block_material_list->count;
+	buffer_list->capacity = buffer_list->count;
+	buffer_list->named_buffers
+		= malloc(sizeof(struct BLOCK_BUFFER)*buffer_list->capacity);
+
+	for (int i = 0; i < buffer_list->count; i++) {
+		strcpy(buffer_list->named_buffers[i].material_name, block_material_list->materials[i].material_name);
+		for (int j = 0; j < 6; j++) {
+			init_face_buffer(&buffer_list->named_buffers[i].facebuffer[j], init_face_buffer_capacity);
+			struct FACEBUFFER_GL_CONTEXT* gl_context = buffer_list->named_buffers[i].facebuffer[j].low_level_context;
+			gl_context->face_material = &block_material_list->materials[i].face_material[j];
+		}
+	}
+	update_buffer_list_material(buffer_list, block_material_list);
+}
+
+
+/*
+block_material_list:
+[
+	{name, face_material[6]}
+	,
+	...
+]
+
+buffer_list:
+[
+	named_buffers:
+	{
+		name,
+		facebuffer : {face_material, data}[6]
+	},
+	...
+]
+
+*/
 void update_buffer_list_material(struct BUFFER_LIST* buffer_list, struct BLOCK_MATERIAL_LIST* block_material_list) {
 	for (int i = 0; i < buffer_list->count; i++) {
-		char* buffer_name = buffer_list->named_buffers[i].name;
+		char* buffer_name = buffer_list->named_buffers[i].material_name;
 		buffer_list->named_buffers[i].facebuffer[0].face_material = NULL;
 		buffer_list->named_buffers[i].facebuffer[1].face_material = NULL;
 		buffer_list->named_buffers[i].facebuffer[2].face_material = NULL;
@@ -287,7 +329,7 @@ void update_buffer_list_material(struct BUFFER_LIST* buffer_list, struct BLOCK_M
 		buffer_list->named_buffers[i].facebuffer[4].face_material = NULL;
 		buffer_list->named_buffers[i].facebuffer[5].face_material = NULL;
 		for (int j = 0; j < block_material_list->count; j++) {
-			char* material_name = block_material_list->materials[j].name;
+			char* material_name = block_material_list->materials[j].material_name;
 			if (STR_EQUAL(buffer_name, material_name)) {
 				buffer_list->named_buffers[i].facebuffer[0].face_material = &block_material_list->materials[j].face_material[0];
 				buffer_list->named_buffers[i].facebuffer[1].face_material = &block_material_list->materials[j].face_material[1];
@@ -312,11 +354,14 @@ void fill_buffer_list(
 	char* node_material_name = node->visual_effect.material_name;
 	int i = buffer_list->count - 1;
 	for (; i > 0; i--) {
-		char* material_name = buffer_list->named_buffers[i].name;
+		char* material_name = buffer_list->named_buffers[i].material_name;
 		if (STR_EQUAL(node_material_name, material_name)) {
 			break;
 		}
 	}
+
+	//int i = node->visual_effect.material_id;
+
 	if (node->visual_effect.is_visible) {
 		for (int j = 0; j < 6; j++) {
 			if (~node->visual_effect.blocked_faces & (0x01 << j)) {

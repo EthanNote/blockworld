@@ -38,8 +38,8 @@ void create_camera(int camera_type, /*int width, int height, */struct CAMERA* ou
 	output_option->up.z = 0;
 
 	if (camera_type == CAMERA_TYPE_PERSPECTIVE) {
-		output_option->perspective_option.far_distance = 100;
-		output_option->perspective_option.near_distance = 1;
+		output_option->perspective_option.far_distance = 1000;
+		output_option->perspective_option.near_distance = 0.1;
 		//output_option->perspective_option.aspect = 1.0*width / height;
 		output_option->perspective_option.field_of_view = 60;
 	}

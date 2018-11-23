@@ -138,12 +138,12 @@ void load_material(const char* fname, struct BLOCK_MATERIAL_LIST* output_block_m
 	{
 		char* name = current_material_node->string;
 		struct BLOCK_MATERIAL block_material;
-		strcpy_s(block_material.name, 16, name);
+		strcpy_s(block_material.material_name, 16, name);
 		cJSON* current_face_node = current_material_node->child;
 		for (int face = 0; face < 6; face++) {
 			cJSON* current_color_value = current_face_node->child;
 			for (int color = 0; color < 3; color++) {
-				block_material.face_material[face].final_color[color]
+				block_material.face_material[face].main_color[color]
 					= current_color_value->valuedouble;
 				current_color_value = current_color_value->next;
 			}

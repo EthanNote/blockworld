@@ -16,6 +16,7 @@ struct RAY_HIT_INFO {
 	struct VECTOR3DF hit_position;
 	struct WORLD_BLOCK* hit_block;
 	int hit_face;
+	double hit_distance;
 };
 
 int hit_detect(struct RAY* ray, struct WORLD_BLOCK* block, struct HIT_DETECT_CALC* calc_out, struct WORLD_BLOCK** hit_block);

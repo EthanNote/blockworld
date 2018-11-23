@@ -10,29 +10,11 @@
             },
             "level": 0,
             "material": "axis"
-          },
-          "1": {
-            "children": {
-            },
-            "level": 0,
-            "material": "axis"
-          },
-          "2": {
-            "children": {
-            },
-            "level": 0,
-            "material": "axis"
-          },
-          "5": {
-            "children": {
-            },
-            "level": 0,
-            "material": "axis"
           }
         },
         "level": 1
       },
-      "1": {
+      "2": {
         "material": "axis",
         "level": 1
       }

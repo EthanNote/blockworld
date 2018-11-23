@@ -111,20 +111,31 @@ void draw_crafting_box(struct CRAFTING_BOX* box) {
 
 
 
-void put_block(struct CRAFTING_BOX* box, struct WORLD_TREE* tree) {
+struct WORLD_BLOCK* put_block(struct CRAFTING_BOX* box, struct WORLD_TREE* tree) {
 	printf("CRF %d %d %d %d\n", box->x, box->y, box->z, box->level);
 	struct WORLD_BLOCK* new_block=create_block(box->x, box->y, box->z, box->level);
+	new_block->visual_effect.is_visible = true;
 	if (!insert_block(tree, new_block)) {
 		printf("FAILED\n");
 		free(new_block);
+		return NULL;
 	}
+	return new_block;
 }
 
 
 
 struct CRAFTING_BOX crafting_box;
+
+struct CRAFTING_BOX* get_crafting_box() {
+	return &crafting_box;
+}
+
 struct WORLD_TREE* crafting_tree;
 struct RAY_HIT_INFO *last_hit_info = NULL;
+
+
+
 void crafting_update(struct RAY_HIT_INFO *hit_info) {
 	last_hit_info = hit_info;
 	if (hit_info->hit_block) {

@@ -6,13 +6,14 @@
 
 struct FACE_MATERIAL
 {
-	float final_color[3];
+	float main_color[3];
+	void* shader;
 };
 
 struct BLOCK_MATERIAL
 {
 	struct FACE_MATERIAL face_material[6];
-	char name[16];
+	char material_name[16];
 };
 
 struct BLOCK_MATERIAL_LIST

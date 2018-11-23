@@ -30,14 +30,14 @@ struct FACE_BUFFER {
 	//pthread_rwlock_t buffer_lock;
 };
 
-struct NAMED_BLOCK_FACE_BUFFER
+struct BLOCK_BUFFER
 {
-	char name[16];
+	char material_name[16];
 	struct FACE_BUFFER facebuffer[6];
 };
 
 struct BUFFER_LIST {
-	struct NAMED_BLOCK_FACE_BUFFER* named_buffers;
+	struct BLOCK_BUFFER* named_buffers;
 	int count;
 	int capacity;
 };
@@ -58,6 +58,12 @@ struct BUFFER_LIST {
 struct BUFFER_LIST* create_buffer_list_from_materials(
 	struct BLOCK_MATERIAL_LIST* block_material_list,
 	int init_face_buffer_capacity
+);
+
+void init_buffer_list_from_materials(
+	struct BLOCK_MATERIAL_LIST* block_material_list,
+	int init_face_buffer_capacity,
+	struct BUFFER_LIST* buffer_list
 );
 
 void fill_material_face_buffer(struct WORLD_BLOCK* node, struct FACE_BUFFER* facebuffer);

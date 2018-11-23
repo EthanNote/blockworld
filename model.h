@@ -13,6 +13,7 @@
 struct BLOCK_VISUAL{
     bool is_visible;
 	char material_name[16];
+	int material_id;
 	//unsigned char blended_color[4];
     unsigned char blocked_faces;
 };
@@ -83,6 +84,8 @@ void* calc_visible_faces(struct WORLD_BLOCK* node);
 /// \param z
 /// \param level
 struct WORLD_BLOCK_QUERY_RESULT* query_block(struct WORLD_TREE* tree, int x, int y, int z, int level);
+
+struct WORLD_BLOCK* find_block(struct WORLD_BLOCK* root, int x, int y, int z, int level);
 
 ///
 /// \param transform

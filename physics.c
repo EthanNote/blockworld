@@ -190,6 +190,7 @@ void ray_cast(struct  RAY* ray, struct WORLD_BLOCK* root, struct RAY_HIT_INFO* o
 		output_info->hit_position.x = ray->start_pos.x*(1 - calc_result.result) + ray->end_pos.x*calc_result.result;
 		output_info->hit_position.y = ray->start_pos.y*(1 - calc_result.result) + ray->end_pos.y*calc_result.result;
 		output_info->hit_position.z = ray->start_pos.z*(1 - calc_result.result) + ray->end_pos.z*calc_result.result;
+		output_info->hit_distance = calc_result.result;
 
 	}
 
