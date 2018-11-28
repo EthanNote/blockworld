@@ -4,7 +4,7 @@
 #include<GL/GLU.h>
 #include<stdio.h>
 #include<math.h>
-
+#include<string.h>
 #include "input.h"
 
 struct CAMERA* active_camera;
@@ -118,7 +118,13 @@ void camera_frame_update() {
 		active_camera->lookat.y += fy;
 		active_camera->lookat.z += fz;
 
+		/*printf("%lf,%lf,%lf,%lf,%lf\n",
+			active_camera->fps_control.angle_x,
+			active_camera->fps_control.angle_y,
 
+			active_camera->fps_control.position.x,
+			active_camera->fps_control.position.y,
+			active_camera->fps_control.position.z);*/
 
 	}
 
@@ -288,12 +294,12 @@ void init_camera_orbit_control(struct CAMERA* camera) {
 
 void init_camera_fps_control(struct CAMERA* camera) {
 	camera->controller_type = CAMERA_CONTROLLER_FPS;
-	camera->fps_control.angle_x = 0;
-	camera->fps_control.angle_y = 0;
+	camera->fps_control.angle_x = -0.285;
+	camera->fps_control.angle_y = 0.91;
 
-	camera->fps_control.position.x = 0;
-	camera->fps_control.position.y = 0;
-	camera->fps_control.position.z = 0;
+	camera->fps_control.position.x = -0.12;
+	camera->fps_control.position.y = 1.082;
+	camera->fps_control.position.z = 0.957;
 
 	glfwSetInputMode(main_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }

@@ -46,19 +46,19 @@ struct WORLD_BLOCK* find_child_block(struct WORLD_BLOCK* block, int x, int y, in
 
 #define LEVELMASK(level) ~((0x1<<((level)+1))-1)
 
-struct WORLD_BLOCK* find_nearby_block(struct WORLD_BLOCK* node, int x, int y, int z, int level) {
-	while (node->level < level) {
-		node = node->parent;
-	}
-	int level_mask = LEVELMASK(level);
-
-	while (((node->position.x ^ x) & level_mask) |
-		((node->position.y ^ y) & level_mask) |
-		((node->position.z ^ z) & level_mask)) {
-		node = node->parent;
-	}
-
-}
+//struct WORLD_BLOCK* find_nearby_block(struct WORLD_BLOCK* node, int x, int y, int z, int level) {
+//	while (node->level < level) {
+//		node = node->parent;
+//	}
+//	int level_mask = LEVELMASK(level);
+//
+//	while (((node->position.x ^ x) & level_mask) |
+//		((node->position.y ^ y) & level_mask) |
+//		((node->position.z ^ z) & level_mask)) {
+//		node = node->parent;
+//	}
+//
+//}
 
 void get_adj_cube(struct WORLD_BLOCK* node, int direction) {
 
@@ -68,9 +68,9 @@ void get_adj_cubes(struct WORLD_BLOCK* node, struct WORLD_BLOCK** result) {
 
 }
 
-void* calc_visible_faces(struct WORLD_BLOCK* node) {
-
-}
+//void* calc_visible_faces(struct WORLD_BLOCK* node) {
+//
+//}
 
 void calc_visible_nodes(struct WORLD_BLOCK* root, VISIBLE_EVAL_FUNC eval) {
 	if (!root) {

@@ -2,10 +2,11 @@
 // Created by snipe_000 on 2018/10/23.
 //
 
-#include <malloc.h>
+#include <stdlib.h>
 #include "rendering.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <string.h>
 #include "materials.h"
 
 #include "utils.h"
@@ -17,7 +18,9 @@ struct FACEBUFFER_GL_CONTEXT {
 };
 
 void init_face_buffer(struct FACE_BUFFER* facebuffer, int size) {
-	facebuffer->data = malloc(size * sizeof(struct FACE));
+	int face_size = sizeof(struct FACE);
+	facebuffer->data = (struct FACE*)malloc(size*face_size);
+	//facebuffer->data = new FACE[size];
 	facebuffer->capasity = size;
 	facebuffer->facecount = 0;
 

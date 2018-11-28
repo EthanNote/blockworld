@@ -139,10 +139,10 @@ struct RAY_HIT_INFO *last_hit_info = NULL;
 void crafting_update(struct RAY_HIT_INFO *hit_info) {
 	last_hit_info = hit_info;
 	if (hit_info->hit_block) {
-		draw_block_hit_normal(hit_info);
+		//draw_block_hit_normal(hit_info);
 		crafting_box.level = 0;
 		set_crafting_box_position(&crafting_box, hit_info);
-		draw_crafting_box(&crafting_box);
+		//draw_crafting_box(&crafting_box);
 	}
 }
 

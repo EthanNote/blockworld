@@ -2,6 +2,8 @@
 // Created by snipe_000 on 2018/10/23.
 //
 
+//#define _CRT_SECURE_NO_WARNINGS
+
 #include "model.h"
 #include "materials.h"
 //#include <pthread.h>

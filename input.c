@@ -96,6 +96,7 @@ void input_setup(void* window) {
 
 bool input_get_mouse_pos(double* px, double* py) {
 	glfwGetCursorPos(input_window, px, py);
+	return true;
 }
 
 

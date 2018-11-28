@@ -22,8 +22,8 @@ void scene_render(struct SCENE* scene) {
 	draw_buffer_list(scene->crafting_buffer_list);
 	crafting_update(&scene->forward_hit_info);
 	if (scene->forward_hit_info.hit_block) {
-		draw_block_hit_normal(&scene->forward_hit_info);
-		draw_crafting_box(&scene->crafting_box);
+	/*	draw_block_hit_normal(&scene->forward_hit_info);
+		draw_crafting_box(&scene->crafting_box);*/
 	}
 }
 
@@ -39,8 +39,8 @@ void scene_init(struct SCENE* scene) {
 	scene->scene_tree.root = create_block(0, 0, 0, 16);
 	scene->crafting_tree.root = create_block(0, 0, 0, 16);
 
-	for (int i = 0; i < 256; i++) {
-		for (int j = 0; j < 256; j++) {
+	for (int i = 0; i < 64; i++) {
+		for (int j = 0; j < 64; j++) {
 			for (int k = 0; k < j; k++) {
 				struct WORLD_BLOCK* block = create_block(i, k, j, 0);
 				block->visual_effect.is_visible = true;
@@ -107,21 +107,21 @@ void scene_update(struct SCENE* scene) {
 	if (scene_hit.hit_block && crafting_hit.hit_block) {
 		if (scene_hit.hit_distance < crafting_hit.hit_distance) {
 			scene->forward_hit_info = scene_hit;
-			printf("H1\n");
+			//printf("H1\n");
 		}
 		else {
 			scene->forward_hit_info = crafting_hit;
-			printf("H2\n");
+			//printf("H2\n");
 		}
 	}
 	else {
 		if (crafting_hit.hit_block) {
 			scene->forward_hit_info = crafting_hit;
-			printf("H3\n");
+			//printf("H3\n");
 		}
 		else {
 			scene->forward_hit_info = scene_hit;
-			printf("H4\n");
+			//printf("H4\n");
 		}
 	}
 
