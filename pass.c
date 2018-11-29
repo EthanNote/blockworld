@@ -7,24 +7,6 @@
 
 
 
-//struct PASS {
-//	struct FBO* render_target;
-//	struct TECHNIQUE* technique;
-//
-//	GLfloat mat_modelview[16];
-//	GLfloat mat_projection[16];
-//
-//	void (*run)(struct PASS* pass);
-//};
-//
-//void pass_matrix(struct PASS* pass) {
-//
-//}
-//
-//void run_pass(struct PASS* pass) {
-//
-//}
-
 struct FBO depth_render_target;
 
 #define USE_PROGRAM 1
@@ -63,7 +45,7 @@ void init_techniques(){
 	technique_add_shader(tech, depth_texture_vs, GL_VERTEX_SHADER, NULL);
 	technique_add_shader(tech, depth_texture_fs, GL_FRAGMENT_SHADER, NULL);
 	technique_finalize(tech);
-	technique_set_uniform1i(tech, "depth_texture", 0);
+	technique_set_uniform_1i(tech, "depth_texture", 0);
 }
 
 

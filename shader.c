@@ -119,30 +119,64 @@ const char* depth_texture_fs =
 "\n"
 "void main(){\n"
 "	float depth=texture(depth_texture, frag_texcoord).x;\n"
-"	//depth = (1.0 -depth )*25.0;\n"
-"	FragColor = vec4(log(1-depth)/log(200.0)+1);\n"
+"	depth = 1.0 - (1.0 -depth )*25.0;\n"
+"	FragColor = vec4(depth);\n"
+"}\n"
+;
+
+const char* geo_vs = 
+"#version 330\n"
+"layout (location=0) in vec3 position;\n"
+"\n"
+"uniform mat4 mat_MVP;\n"
+"uniform mat4 mat_modelview;\n"
+"\n"
+"out vec3 view_position;\n"
+"\n"
+"void main(){\n"
+"	gl_Position = mat_MVP * position;\n"
+"	view_position = mat_modelview * position;\n"
+"}\n"
+;
+
+const char* geo_fs = 
+"#version 330\n"
+"\n"
+"uniform vec3 normal;\n"
+"uniform vec3 color;\n"
+"\n"
+"layout (location = 0) out vec3 tex_color;\n"
+"layout (location = 1) out vec3 tex_position;\n"
+"layout (location = 2) out vec3 tex_normal;\n"
+"\n"
+"in vec3 view_position;\n"
+"\n"
+"void main(){\n"
+"	tex_color = color;\n"
+"	tex_position = view_position;\n"
+"	tex_normal = normal;\n"
 "}\n"
 ;
 
 #define INSERT_END
 
-char** vert_shaders[2];
-char** frag_shaders[2];
-
-void init_shaders() {
-	vert_shaders[0] = shadow_map_vs;
-	vert_shaders[1] = depth_gray_vs;
-
-	frag_shaders[0] = shadow_map_fs;
-	frag_shaders[1] = depth_gray_fs;
-}
-
-char** get_vertex_shaders() {
-	return vert_shaders;
-}
-
-char** get_fragment_shaders() {
-	return frag_shaders;
-}
+//char** vert_shaders[2];
+//char** frag_shaders[2];
+//
+//void init_shaders() {
+//	vert_shaders[0] = shadow_map_vs;
+//	vert_shaders[1] = depth_gray_vs;
+//
+//	frag_shaders[0] = shadow_map_fs;
+//	frag_shaders[1] = depth_gray_fs;
+//}
+//
+//char** get_vertex_shaders() {
+//	return vert_shaders;
+//}
+//
+//char** get_fragment_shaders() {
+//	return frag_shaders;
+//}
 
 

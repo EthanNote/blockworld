@@ -11,6 +11,17 @@ void technique_init(struct TECHNIQUE* technique) {
 	technique->shader_capacity = 2;
 	technique->shader_count = 0;
 	technique->shader_list = malloc(sizeof(struct SHADER)*technique->shader_capacity);
+
+	technique->vertex_format.items = malloc(sizeof(struct VERTEXFORMATITEM) * 4);
+	technique->vertex_format.capacity = 4;
+	technique->vertex_format.count = 0;
+
+	technique->extra_data = 0;
+}
+
+void technique_init_ex(struct TECHNIQUE* technique, int ext_size) {
+	technique_init(technique);
+	technique->extra_data = malloc(ext_size);
 }
 
 void technique_destroy(struct TECHNIQUE* technique) {
@@ -144,10 +155,26 @@ GLuint technique_get_uniform_location(struct TECHNIQUE* technique, const char* u
 	return Location;
 }
 
-int technique_set_uniform1i(struct TECHNIQUE* technique, const char* uniform_name, GLint value) {
+int technique_set_uniform_1i(struct TECHNIQUE* technique, const char* uniform_name, GLint value) {
 	GLuint success = 1, Location = glGetUniformLocation(technique->program, uniform_name);
 	Location == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name) && (success = 0);
 	if (success) { glUniform1i(Location, value); }
+	return success;
+}
+
+
+//(GLint location, GLsizei count, const GLfloat* value)
+int technique_set_uniform_3fv(struct TECHNIQUE* technique, const char* uniform_name, GLsizei count, const GLfloat* value) {
+	GLuint success = 1, Location = glGetUniformLocation(technique->program, uniform_name);
+	Location == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name) && (success = 0);
+	if (success) { glUniform3fv(Location, count, value); }
+	return success;
+}
+//GLint location, GLsizei count, GLboolean transpose, const GLfloat* value
+int technique_set_uniform_matrix4fv(struct TECHNIQUE* technique, const char* uniform_name, GLboolean transpose, const GLfloat* value) {
+	GLuint success = 1, Location = glGetUniformLocation(technique->program, uniform_name);
+	Location == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name) && (success = 0);
+	if (success) { glUniformMatrix4fv(Location, 1, transpose, value); }
 	return success;
 }
 

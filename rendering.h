@@ -108,4 +108,7 @@ void draw_buffer(struct FACE_BUFFER* facebuffer);
 
 void feed_buffer_list(struct BUFFER_LIST* buffer_list);
 
+void apply_face_material(struct FACE_MATERIAL* face_material);
+
+
 #endif //WORLD_RENDERING_H

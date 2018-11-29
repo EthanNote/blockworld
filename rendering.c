@@ -10,12 +10,134 @@
 #include "materials.h"
 
 #include "utils.h"
-
+#include "fbo.h"
+#include "view.h"
+#include "technique.h"
 struct FACEBUFFER_GL_CONTEXT {
 	struct FACE_BUFFER* facebuffer;
 	GLuint vbo;
 	struct FACE_MATERIAL* face_material;
 };
+
+struct GEOMETRY_PIPLINE {
+	GLfloat mat_modelview[16];
+	GLfloat mat_projection[16];
+	GLfloat mat_MVP[16];
+	struct FBO* render_target;
+	struct TECHNIQUE* technique;
+};
+
+
+#define GEOMETRY_TECHNIQUE_EXT_FLAG_MAT_MVP 1
+#define GEOMETRY_TECHNIQUE_EXT_FLAG_MAT_MV 2
+#define GEOMETRY_TECHNIQUE_EXT_FLAG_MAT_P 4
+
+
+struct GEOMETRY_TECHNIQUE_EXT {
+	int flags;
+};
+
+extern const char* geo_vs;
+extern const char* geo_fs;
+
+void geometry_pass_technique_init(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target, struct TECHNIQUE* technique) {
+	if (render_target) {
+		pipline->render_target = render_target;
+	}
+	else {
+		pipline->render_target = malloc(sizeof(struct FBO));
+		fbo_init(pipline->render_target, 640, 480, 3);
+		fbo_create_color_buffer(pipline->render_target, 0, GL_RGB32F);
+		fbo_create_color_buffer(pipline->render_target, 1, GL_RGB32F);
+		fbo_create_color_buffer(pipline->render_target, 2, GL_RGB32F);
+		fbo_create_depth_buffer(pipline->render_target);
+		fbo_verify(pipline->render_target);
+	}
+
+	if (technique) {
+		pipline->technique = technique;
+	}
+	else {
+		pipline->technique = malloc(sizeof(struct TECHNIQUE));
+		technique_init(pipline->technique);
+		technique_add_shader(pipline->technique, geo_vs, GL_VERTEX_SHADER, NULL);
+		technique_add_shader(pipline->technique, geo_fs, GL_FRAGMENT_SHADER, NULL);
+		technique_finalize(pipline->technique);
+	}
+}
+
+
+void geometry_pass(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* buffer_list) {
+	/*struct GEOMETRY_TECHNIQUE_EXT* ext = pipline->technique->extra_data;
+	if (ext->flags & GEOMETRY_TECHNIQUE_EXT_FLAG_MAT_MVP) {
+	}*/
+	technique_set_uniform_1i(pipline->technique, "mat_MVP", pipline->mat_MVP);
+	technique_set_uniform_1i(pipline->technique, "mat_modelview", pipline->mat_projection);
+
+	GLfloat color[] = { 1.0,1.0,1.0 };
+	technique_set_uniform_3fv(pipline->technique, "color", 3, color);
+	technique_set_uniform_3fv(pipline->technique, "normal", 3, color);
+
+	technique_enable(pipline->technique);
+
+	//draw buffer list
+	for (int i = 0; i < buffer_list->count; i++) {
+		for (int j = 0; j < 6; j++) {
+			struct FACE_BUFFER* facebuffer = &buffer_list->named_buffers[i].facebuffer[j];
+			//draw buffer
+			//draw_buffer(facebuffer);
+			if (facebuffer->face_material) {
+				apply_face_material(facebuffer->face_material);
+			}
+			glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
+			/*glVertexPointer(3, GL_FLOAT, 0, 0);
+			glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);*/
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, 0);
+			glEnable(GL_VERTEX_ARRAY);
+			glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
+			glDisableVertexAttribArray(0);
+
+			/*
+			glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, 0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, 8);
+
+
+			glEnable(GL_VERTEX_ARRAY);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			
+			*/
+		}
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+}
+
+void set_pipline_transforms(struct GEOMETRY_PIPLINE *pipline, struct CAMERA* camera) {
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+
+	camera_frame_update();
+	glGetFloatv(GL_MODELVIEW_MATRIX, pipline->mat_modelview);
+	glGetFloatv(GL_PROJECTION_MATRIX, pipline->mat_projection);
+
+	glMultMatrixf(pipline->mat_modelview);
+	glGetFloatv(GL_PROJECTION_MATRIX, pipline->mat_MVP);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+}
+
 
 void init_face_buffer(struct FACE_BUFFER* facebuffer, int size) {
 	int face_size = sizeof(struct FACE);
