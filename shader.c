@@ -134,8 +134,8 @@ const char* geo_vs =
 "out vec3 view_position;\n"
 "\n"
 "void main(){\n"
-"	gl_Position = mat_MVP * position;\n"
-"	view_position = mat_modelview * position;\n"
+"	gl_Position = mat_MVP * vec4(position, 1.0);\n"
+"	view_position = (mat_modelview * vec4(position, 1.0)).xyz;\n"
 "}\n"
 ;
 

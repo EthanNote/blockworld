@@ -44,7 +44,13 @@ struct BUFFER_LIST {
 	int capacity;
 };
 
-
+struct GEOMETRY_PIPLINE {
+	float mat_modelview[16];
+	float mat_projection[16];
+	float mat_MVP[16];
+	struct FBO* render_target;
+	struct TECHNIQUE* technique;
+};
 
 //struct BUFFER_LIST* create_buffer_list_from_materials(struct BLOCK_MATERIAL_LIST* block_material_list) {
 //	struct BUFFER_LIST* buffer_list = malloc(sizeof(struct BUFFER_LIST));
@@ -100,6 +106,8 @@ void resize_face_buffer(struct FACE_BUFFER* facebuffer, int size);
 
 //void init_face_buffer_writer(struct FACEBUFFERWRITER* facebufferwriter, struct FACEBUFFER* facebuffer   );
 
+void fill_face(struct WORLD_BLOCK* node, int direction, struct FACE* face);
+
 void fill_face_buffer(struct WORLD_BLOCK* node, struct FACE_BUFFER* facebuffer);
 
 void feed_buffer(struct FACE_BUFFER* facebuffer);
@@ -110,5 +118,11 @@ void feed_buffer_list(struct BUFFER_LIST* buffer_list);
 
 void apply_face_material(struct FACE_MATERIAL* face_material);
 
+
+void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target, struct TECHNIQUE* technique);
+
+void set_pipline_transforms(struct GEOMETRY_PIPLINE *pipline, struct CAMERA* camera);
+
+void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* buffer_list);
 
 #endif //WORLD_RENDERING_H

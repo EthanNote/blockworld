@@ -16,9 +16,9 @@
 struct SCENE scene;
 
 extern int pass_init();
-extern void pass_depth();
-extern void pass_render();
-
+extern void pass_geometry();
+extern void pass_quad();
+extern void render_scene_trees(struct SCENE* scene);
 
 int main() {
 
@@ -108,9 +108,11 @@ int main() {
 		/* Render here */
 	/*	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		scene_render(&scene);*/
-		pass_depth();
-		scene_render(&scene);
-		pass_render();
+		
+		//pass_geometry();
+		//scene_render(&scene);
+		render_scene_trees(&scene);
+		pass_quad();
 		
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
