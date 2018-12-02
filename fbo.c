@@ -2,67 +2,122 @@
 #include "fbo.h"
 #include<stdio.h>
 
-void fbo_init(struct FBO* fbo, int width, int height, int color_buffer_count) {
+void fbo_init(struct FBO* fbo, int width, int height, int color_buffer_count, int with_depth) {
 	glGenFramebuffers(1, &fbo->_fbo);
+	fbo->width = width;
+	fbo->height = height;
 	//printf("fbo_init _ glGenFramebuffers(1, &fbo->_fbo); = %d\n", glGetError());
 	if (color_buffer_count > 0) {
 		fbo->color_buffer_list = calloc(color_buffer_count, sizeof(GLuint));
 		fbo->color_buffer_count = color_buffer_count;
+
+		fbo_create_color_buffer(fbo, color_buffer_count);
+
 	}
 	else {
 		fbo->color_buffer_list = 0;
 		fbo->color_buffer_count = 0;
 	}
-	fbo->width = width;
-	fbo->height = height;
+
+	if (with_depth) {
+		fbo_create_depth_buffer(fbo);
+	}
+
+	fbo_verify(fbo);
 }
+
+GLenum DrawBuffers[] = {
+	GL_COLOR_ATTACHMENT0,
+	GL_COLOR_ATTACHMENT1,
+	GL_COLOR_ATTACHMENT2,
+	GL_COLOR_ATTACHMENT3,
+	GL_COLOR_ATTACHMENT4,
+	GL_COLOR_ATTACHMENT5,
+	GL_COLOR_ATTACHMENT6,
+	GL_COLOR_ATTACHMENT7,
+	GL_COLOR_ATTACHMENT8,
+	GL_COLOR_ATTACHMENT9,
+	GL_COLOR_ATTACHMENT10
+};
+
+
+void Assert(const char* message) {
+	int error = glGetError();
+	if (error) {
+		printf("ERR:%d\n%s\n", error, message);
+	}
+}
+
+//void fbo_create_color_buffers(struct FBO* fbo, int count) {
+//	Assert("fbo_create_color_buffers beg");
+//	glBindFramebuffer(GL_FRAMEBUFFER, fbo->_fbo);
+//	//GLuint texture;
+//
+//	if (count > 0) {
+//		fbo->color_buffer_list = malloc(sizeof(GLuint)*count);
+//		glGenTextures(count, fbo->color_buffer_list);
+//
+//		for (int index = 0; index < count; index++) {
+//			int attachment = GL_COLOR_ATTACHMENT0 + index;
+//			glBindTexture(GL_TEXTURE_2D, fbo->color_buffer_list[index]);
+//			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, fbo->width, fbo->height, 0, GL_RGB, GL_FLOAT, NULL);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, fbo->color_buffer_list[index], 0);
+//		}
+//		//GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0+index };
+//
+//		//glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(DrawBuffers), DrawBuffers);
+//		//glDrawBuffers(1, &attachment);
+//		Assert("glDrawBuffer bef");
+//		glDrawBuffer(1, DrawBuffers);
+//		Assert("glDrawBuffer");
+//
+//		//fbo->color_buffer_list[index] = texture;
+//	}
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//
+//
+//}
 
 
 /*
 index: buffer list index
 InternalType: GL_RGB32F or GL_R32F
 */
-void fbo_create_color_buffer(struct FBO* fbo, int index, GLenum InternalType) {
+void fbo_create_color_buffer(struct FBO* fbo, int count) {
 	GLenum Format, Type;
 
-	switch (InternalType) {
-	case GL_RGB32F:
-		Format = GL_RGB;
-		Type = GL_FLOAT;
-		break;
-	case GL_R32F:
-		Format = GL_RED;
-		Type = GL_FLOAT;
-		break;
-	case GL_NONE:
-		break;
-	default:
-		fprintf(stderr, "Invalid internal type\n");
-	}
+
+	Format = GL_RGB;
+	Type = GL_FLOAT;
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo->_fbo);
-	//printf("fbo_create_color_buffer _ glBindFramebuffer(GL_FRAMEBUFFER, fbo->_fbo); = %d\n", glGetError());
-	// Create the textures
-	GLuint texture;
-	if (InternalType != GL_NONE) {
-		glGenTextures(1, &texture);
+	glGenTextures(count, fbo->color_buffer_list);
+	for (int index = 0; index < count; index++) {
+		//printf("fbo_create_color_buffer _ glBindFramebuffer(GL_FRAMEBUFFER, fbo->_fbo); = %d\n", glGetError());
+		// Create the textures
+		//GLuint texture;
+		//if (InternalType != GL_NONE) {
 		int attachment = GL_COLOR_ATTACHMENT0 + index;
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, InternalType, fbo->width, fbo->height, 0, Format, Type, NULL);
+		glBindTexture(GL_TEXTURE_2D, fbo->color_buffer_list[index]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, fbo->width, fbo->height, 0, Format, Type, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
-
-		//GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0+index };
-
-		//glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(DrawBuffers), DrawBuffers);
-		glDrawBuffers(1, &attachment);
-
-		fbo->color_buffer_list[index] = texture;
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, fbo->color_buffer_list[index], 0);
 	}
+	//GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0+index };
+
+	//glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(DrawBuffers), DrawBuffers);
+	glDrawBuffers(count, DrawBuffers);
+
+	//fbo->color_buffer_list[index] = texture;
+	//}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//printf("fbo_create_color_buffer _ glBindFramebuffer(GL_FRAMEBUFFER, 0); = %d\n", glGetError());
 }
@@ -95,7 +150,7 @@ int fbo_verify(struct FBO* fbo) {
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo->_fbo);
 
 	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	if (Status != GL_FRAMEBUFFER_COMPLETE) {

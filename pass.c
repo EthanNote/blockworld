@@ -134,7 +134,7 @@ void pass_quad() {
 	//printf("pass_quad _ T3 .. ; = %d\n", glGetError());
 
 
-	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->depth_buffer);
+	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->color_buffer_list[0]);
 
 	//printf("pass_quad _ glBindTexture .. ; = %d\n", glGetError());
 

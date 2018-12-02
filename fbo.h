@@ -14,9 +14,11 @@ struct FBO {
 	int color_buffer_count;
 };
 
-void fbo_init(struct FBO* fbo, int width, int height, int color_buffer_count);
+void fbo_init(struct FBO* fbo, int width, int height, int color_buffer_count, int with_depth);
 
-void fbo_create_color_buffer(struct FBO* fbo, int index, GLenum InternalType);
+void fbo_create_color_buffer(struct FBO* fbo, int count);
+
+//void fbo_create_color_buffers(struct FBO* fbo, int count);
 
 void fbo_create_depth_buffer(struct FBO* fbo);
 

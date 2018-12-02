@@ -120,7 +120,8 @@ const char* depth_texture_fs =
 "void main(){\n"
 "	float depth=texture(depth_texture, frag_texcoord).x;\n"
 "	depth = 1.0 - (1.0 -depth )*25.0;\n"
-"	FragColor = vec4(depth);\n"
+"	//FragColor = vec4(depth);\n"
+"	FragColor = texture(depth_texture, frag_texcoord);"
 "}\n"
 ;
 

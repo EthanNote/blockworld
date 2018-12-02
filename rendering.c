@@ -40,12 +40,13 @@ void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_
 	}
 	else {
 		pipline->render_target = malloc(sizeof(struct FBO));
-		fbo_init(pipline->render_target, 640, 480, 3);
-		fbo_create_color_buffer(pipline->render_target, 0, GL_RGB32F);
-		fbo_create_color_buffer(pipline->render_target, 1, GL_RGB32F);
-		fbo_create_color_buffer(pipline->render_target, 2, GL_RGB32F);
-		fbo_create_depth_buffer(pipline->render_target);
-		fbo_verify(pipline->render_target);
+		fbo_init(pipline->render_target, 640, 480, 3, 1);
+		//fbo_create_color_buffer(pipline->render_target, 3);
+		/*fbo_create_color_buffer(pipline->render_target, 1, GL_RGB32F);
+		fbo_create_color_buffer(pipline->render_target, 2, GL_RGB32F);*/
+		//fbo_create_color_buffers(pipline->render_target, 1);
+		//fbo_create_depth_buffer(pipline->render_target);
+		
 	}
 
 	if (technique) {
