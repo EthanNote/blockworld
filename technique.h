@@ -55,3 +55,6 @@ int technique_finalize(struct TECHNIQUE* technique);
 
 int technique_set_uniform_1i(struct TECHNIQUE* technique, const char* uniform_name, GLint value);
 
+int technique_set_uniform_3fv(struct TECHNIQUE* technique, const char* uniform_name, GLsizei count, const GLfloat* value);
+
+int technique_set_uniform_matrix4fv(struct TECHNIQUE* technique, const char* uniform_name, GLboolean transpose, const GLfloat* value);

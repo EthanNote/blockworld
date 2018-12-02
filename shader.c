@@ -129,13 +129,12 @@ const char* geo_vs =
 "layout (location=0) in vec3 position;\n"
 "\n"
 "uniform mat4 mat_MVP;\n"
-"uniform mat4 mat_modelview;\n"
 "\n"
 "out vec3 view_position;\n"
 "\n"
 "void main(){\n"
 "	gl_Position = mat_MVP * vec4(position, 1.0);\n"
-"	view_position = (mat_modelview * vec4(position, 1.0)).xyz;\n"
+"	view_position = (mat_MVP * vec4(position, 1.0)).xyz;\n"
 "}\n"
 ;
 
@@ -145,16 +144,12 @@ const char* geo_fs =
 "uniform vec3 normal;\n"
 "uniform vec3 color;\n"
 "\n"
-"layout (location = 0) out vec3 tex_color;\n"
-"layout (location = 1) out vec3 tex_position;\n"
-"layout (location = 2) out vec3 tex_normal;\n"
+"out vec4 FragColor;\n"
 "\n"
 "in vec3 view_position;\n"
 "\n"
 "void main(){\n"
-"	tex_color = color;\n"
-"	tex_position = view_position;\n"
-"	tex_normal = normal;\n"
+"	FragColor = vec4(1.0,0.0,0.0,1.0);\n"
 "}\n"
 ;
 

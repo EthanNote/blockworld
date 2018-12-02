@@ -59,39 +59,6 @@ int main() {
 
 	drag_init();
 
-	/*GLuint fbo;
-	GLuint shadow_map;
-
-	glGenFramebuffers(1, &fbo);
-	glGenTextures(1, &shadow_map);
-	glBindTexture(GL_TEXTURE_2D, shadow_map);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 640, 480, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_map, 0);
-
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		printf("FB error, status: 0x%x\n", status);
-		return -1;
-	}
-
-	char* vs_source = NULL;
-	get_file_text("shadow_map.vs", &vs_source);
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, vs_source, strlen(vs_source));*/
-
-	//int fp = glCreateShader;
-
-	//GLuint vs = create_shader_from_source("shadow_map.vs", GL_VERTEX_SHADER);
-	//GLuint fs = create_shader_from_source("shadow_map.fs", GL_VERTEX_SHADER);
 
 	pass_init();
 
@@ -104,13 +71,7 @@ int main() {
 	
 
 		scene_update(&scene);
-
-		/* Render here */
-	/*	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		scene_render(&scene);*/
-		
-		//pass_geometry();
-		//scene_render(&scene);
+			
 		render_scene_trees(&scene);
 		pass_quad();
 		

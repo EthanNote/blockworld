@@ -61,9 +61,12 @@ void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_
 }
 
 
+
 void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* buffer_list) {
-	technique_set_uniform_1i(pipline->technique, "mat_MVP", pipline->mat_MVP);
-	technique_set_uniform_1i(pipline->technique, "mat_modelview", pipline->mat_projection);
+	//printf("render_buffer_list _ I = %d\n", glGetError());
+	//technique_set_uniform_matrix4fv(pipline->technique, "mat_MVP", GL_FALSE, pipline->mat_projection);
+	technique_enable(pipline->technique);
+	technique_set_uniform_matrix4fv(pipline->technique, "mat_MVP", GL_FALSE, pipline->mat_MVP);
 
 	GLfloat color[] = { 1.0,1.0,1.0 };
 	GLfloat normal_list[] = {
@@ -74,11 +77,11 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 		0.0, 0.0, -1.0,
 		0.0, 0.0, 1.0,
 	};
-	technique_set_uniform_3fv(pipline->technique, "color", 3, color);
-	technique_set_uniform_3fv(pipline->technique, "normal", 3, normal_list);
+	//technique_set_uniform_3fv(pipline->technique, "color", 1, color);
+	//technique_set_uniform_3fv(pipline->technique, "normal", 1, normal_list);
 
-	technique_enable(pipline->technique);
-
+	//technique_enable(pipline->technique);
+	//printf("E1 = %d\n", glGetError());
 	//draw buffer list
 	for (int i = 0; i < buffer_list->count; i++) {
 		for (int j = 0; j < 6; j++) {
@@ -86,24 +89,38 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 			//draw buffer
 			//draw_buffer(facebuffer);
 			if (facebuffer->face_material) {
-				apply_face_material(facebuffer->face_material);
-				technique_set_uniform_3fv(pipline->technique, "color", 3, facebuffer->face_material->main_color);
+				//apply_face_material(facebuffer->face_material);
+				//technique_set_uniform_3fv(pipline->technique, "color", 1, facebuffer->face_material->main_color);
 			}
 			else {
-				technique_set_uniform_3fv(pipline->technique, "color", 3, color);
+				//technique_set_uniform_3fv(pipline->technique, "color", 1, color);
 			}
-			technique_set_uniform_3fv(pipline->technique, "normal", 3, normal_list + j * 3);
+			//technique_set_uniform_3fv(pipline->technique, "normal", 1, normal_list + j * 3);
+
+			
+		/*	glEnable(GL_VERTEX_ARRAY);
 
 			glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
 			glVertexPointer(3, GL_FLOAT, 0, 0);
 			glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
-		/*	glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, 0);
-			glEnable(GL_VERTEX_ARRAY);
+
+
+			glDisable(GL_VERTEX_ARRAY);*/
+
+
+			
+
+
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, facebuffer->data);
 			glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
-			glDisableVertexAttribArray(0);*/
+			glDisableVertexAttribArray(0);
+
+			//printf("E2 = %d\n", glGetError());
 
 			/*
+
 			glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -121,9 +138,7 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
 }
-
 
 
 void set_pipline_transforms(struct GEOMETRY_PIPLINE *pipline, struct CAMERA* camera) {

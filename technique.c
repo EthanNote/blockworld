@@ -8,6 +8,8 @@
 
 void technique_init(struct TECHNIQUE* technique) {
 	technique->program = glCreateProgram();
+	//printf("void technique_init(struct TECHNIQUE* technique) _ technique->program = glCreateProgram(); = %d\n", glGetError());
+
 	technique->shader_capacity = 2;
 	technique->shader_count = 0;
 	technique->shader_list = malloc(sizeof(struct SHADER)*technique->shader_capacity);
@@ -81,7 +83,7 @@ int technique_add_shader(struct TECHNIQUE* technique, char* shader_source, GLuin
 	_technique_add_shader(technique, &shader);
 
 	glAttachShader(technique->program, ShaderObj);
-
+	//printf("technique_add_shader _ glAttachShader(technique->program, ShaderObj); = %d\n", glGetError());
 	return 1;
 }
 
@@ -156,25 +158,56 @@ GLuint technique_get_uniform_location(struct TECHNIQUE* technique, const char* u
 }
 
 int technique_set_uniform_1i(struct TECHNIQUE* technique, const char* uniform_name, GLint value) {
+
+
 	GLuint success = 1, Location = glGetUniformLocation(technique->program, uniform_name);
-	Location == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name) && (success = 0);
-	if (success) { glUniform1i(Location, value); }
+	//printf("technique_set_uniform_1i _ Location ...  = %d, %d\n", glGetError(), Location);
+	if (Location == INVALID_UNIFORM_LOCATION) {
+		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name);
+		success = 0;
+	}
+
+	//printf("technique_set_uniform_1i _ A; = %d, %d, %d\n", glGetError(), Location, value);
+
+	if (success) {
+		glUseProgram(technique->program);
+		//printf("technique_set_uniform_1i _ B; = %d, %d, %d\n", glGetError(), Location, value);
+		glUniform1i(Location, value);
+		//printf("technique_set_uniform_1i _ glUniform1i(Location, value); = %d, %d, %d\n", glGetError(), Location, value);
+	}
 	return success;
 }
 
 
 //(GLint location, GLsizei count, const GLfloat* value)
 int technique_set_uniform_3fv(struct TECHNIQUE* technique, const char* uniform_name, GLsizei count, const GLfloat* value) {
+	//printf("technique_set_uniform_3fv _ I = %d, %d\n", glGetError(), value);
 	GLuint success = 1, Location = glGetUniformLocation(technique->program, uniform_name);
 	Location == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name) && (success = 0);
-	if (success) { glUniform3fv(Location, count, value); }
+	//printf("technique_set_uniform_3fv _ Location .. ; = %d, %d, %d\n", glGetError(), Location, value);
+	if (success) {
+		glUseProgram(technique->program);
+		//printf("technique_set_uniform_3fv _ glUseProgram .. ; = %d, %d, %d\n", glGetError(), Location, value);
+		glUniform3fv(Location, count, value);
+		//printf("technique_set_uniform_3fv _ glUniform3fv .. ; = %d, %d, %d\n", glGetError(), Location, value);
+	}
 	return success;
 }
 //GLint location, GLsizei count, GLboolean transpose, const GLfloat* value
 int technique_set_uniform_matrix4fv(struct TECHNIQUE* technique, const char* uniform_name, GLboolean transpose, const GLfloat* value) {
+	//printf("technique_set_uniform_matrix4fv _ I = %d, %d\n", glGetError(), value);
 	GLuint success = 1, Location = glGetUniformLocation(technique->program, uniform_name);
-	Location == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name) && (success = 0);
-	if (success) { glUniformMatrix4fv(Location, 1, transpose, value); }
+	if (Location == INVALID_UNIFORM_LOCATION)
+	{
+		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", uniform_name);
+		success = 0;
+	}
+	if (success) {
+		glUseProgram(technique->program);
+		//printf("technique_set_uniform_matrix4fv _ glGetUniformLocation = %d, %d\n", glGetError(), value);
+		glUniformMatrix4fv(Location, 1, transpose, value);
+		//printf("technique_set_uniform_matrix4fv _ glUniformMatrix4fv = %d, %d\n", glGetError(), value);
+	}
 	return success;
 }
 

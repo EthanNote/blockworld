@@ -17,9 +17,9 @@ int WindowWidth = 640;
 int WindowHeight = 480;
 
 
-GLuint quad_buffer = 0;
+//GLuint quad_buffer = 0;
 float quad[] = {
-	-1.0f,  1.0f, 0.0f, 1.0f, //vec2 pos, vec2 tex_coord
+	-0.8f,  1.0f, 0.0f, 1.0f, //vec2 pos, vec2 tex_coord
 	-1.0f, -1.0f, 0.0f, 0.0f,
 	1.0f,  -1.0f, 1.0f, 0.0f,
 	1.0f,  1.0f,  1.0f, 1.0f,
@@ -51,12 +51,17 @@ void init_techniques(){
 }
 
 
-void create_quad_vertex_buffer() {
-	//quad vertex object
-	glGenBuffers(1, &quad_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, quad, GL_STATIC_DRAW);
-}
+//void create_quad_vertex_buffer() {
+//	//quad vertex object
+//	glGenBuffers(1, &quad_buffer);
+//	printf("create_quad_vertex_buffer() _ glGenBuffers(1, &quad_buffer);; = %d\n", glGetError());
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, quad, GL_STATIC_DRAW);
+//
+//
+//	printf("create_quad_vertex_buffer() _ glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, quad, GL_STATIC_DRAW);; = %d\n", glGetError());
+//}
 
 
 /*
@@ -74,19 +79,22 @@ void scene_render(struct SCENE* scene) {
 */
 void render_scene_trees(struct SCENE* scene) {
 	fbo_bind(geo_pipline.render_target);
+
+	//printf("fbo_bind(geo_pipline.render_target); = %d\n", glGetError());
+
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
-	//technique_enable(geo_pipline.technique);
 
-	//set_pipline_transforms(&geo_pipline, &scene->camera);
-	/*render_buffer_list(&geo_pipline, scene->scene_buffer_list);
-	render_buffer_list(&geo_pipline, scene->crafting_buffer_list);*/
+	//printf("glUseProgram(0); = %d\n", glGetError());
 
-	
+	technique_enable(geo_pipline.technique);
+	set_pipline_transforms(&geo_pipline, &scene->camera);
+
+	//camera_frame_update();
 	//render_buffer_list(&geo_pipline, scene->scene_buffer_list);
-	scene_render(scene);
-	//draw_buffer_list(scene->scene_buffer_list);
+	render_buffer_list(&geo_pipline, scene->crafting_buffer_list);
+	//scene_render(scene);
 
 	glUseProgram(0);
 }
@@ -95,7 +103,7 @@ int pass_init() {
 	
 	init_fbos();
 	init_techniques();
-	create_quad_vertex_buffer();
+	//create_quad_vertex_buffer();
 
 	return 1;
 }
@@ -112,26 +120,36 @@ void pass_geometry() {
 
 
 void pass_quad() {
+
+	//printf("pass_quad _ I .. ; = %d\n", glGetError());
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//printf("pass_quad _ T .. ; = %d\n", glGetError());
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_TEXTURE0);
+	//printf("pass_quad _ T1 .. ; = %d\n", glGetError());
+	//glEnable(GL_TEXTURE0);
+	//printf("pass_quad _ T2 .. ; = %d\n", glGetError());
 	glActiveTexture(GL_TEXTURE0);
+	//printf("pass_quad _ T3 .. ; = %d\n", glGetError());
+
+
 	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->depth_buffer);
 
+	//printf("pass_quad _ glBindTexture .. ; = %d\n", glGetError());
 
 #ifdef USE_PROGRAM
 	
 	technique_enable(&technique);
 
-	glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
+	//glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, 8);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, &quad[0]);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, &quad[2]);
 
 
-	glEnable(GL_VERTEX_ARRAY);
+	//glEnable(GL_VERTEX_ARRAY);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
