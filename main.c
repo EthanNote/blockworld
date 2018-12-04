@@ -42,7 +42,7 @@ int main() {
 	glewInit();
 	/*GLuint vbo;
 	glGenBuffers(1, &vbo);*/
-	glEnableClientState(GL_VERTEX_ARRAY);
+	//glDisableClientState(GL_VERTEX_ARRAY);
 	/*glPolygonMode(GL_FRONT, GL_LINE);
 	glPolygonMode(GL_BACK, GL_LINE);*/
 	glEnable(GL_CULL_FACE);

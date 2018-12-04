@@ -99,7 +99,7 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 			//technique_set_uniform_3fv(pipline->technique, "normal", 1, normal_list + j * 3);
 
 			
-		/*	glEnable(GL_VERTEX_ARRAY);
+		/*	;
 
 			glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
 			glVertexPointer(3, GL_FLOAT, 0, 0);
@@ -129,7 +129,7 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, 8);
 
 
-			glEnable(GL_VERTEX_ARRAY);
+			;
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
