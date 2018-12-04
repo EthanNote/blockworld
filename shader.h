@@ -2,25 +2,6 @@
 #include<GL/glew.h>
 #include <GLFW/glfw3.h>
 
-//void get_file_text(const char* fname, char** text);
-//
-//GLuint create_shader_from_source(const char* fname, GLuint ShaderType);
-
-//void init_shaders();
-//
-//char** get_vertex_shaders();
-//
-//char** get_fragment_shaders();
-
-//struct PROGRAM {
-//	GLuint program;
-//	GLuint vs;
-//	GLuint fs;
-//	GLuint gs;
-//};
-
-
-
 void program_load(GLuint program, const char* vs_fname, const char* fs_fname, const char* gs_fname);
 
 void program_load_from_string(GLuint program,

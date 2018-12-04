@@ -7,12 +7,17 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string.h>
+#include <stdio.h>
+
 #include "materials.h"
 
 #include "utils.h"
 #include "fbo.h"
 #include "view.h"
 #include "technique.h"
+#include "shader.h"
+
+
 struct FACEBUFFER_GL_CONTEXT {
 	struct FACE_BUFFER* facebuffer;
 	GLuint vbo;
@@ -34,7 +39,9 @@ struct GEOMETRY_TECHNIQUE_EXT {
 extern const char* geo_vs;
 extern const char* geo_fs;
 
-void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target, struct TECHNIQUE* technique) {
+#define INVALID_UNIFORM_LOCATION 0xffffffff
+
+void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target) {
 	if (render_target) {
 		pipline->render_target = render_target;
 	}
@@ -46,10 +53,23 @@ void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_
 		fbo_create_color_buffer(pipline->render_target, 2, GL_RGB32F);*/
 		//fbo_create_color_buffers(pipline->render_target, 1);
 		//fbo_create_depth_buffer(pipline->render_target);
-		
+
 	}
 
-	if (technique) {
+	pipline->program = glCreateProgram();
+	program_load(pipline->program, "geo.vs", "geo.fs", 0);
+
+	pipline->loc_mat_MVP = glGetUniformLocation(pipline->program, "mat_MVP");
+	pipline->loc_mat_modelview = glGetUniformLocation(pipline->program, "mat_modelview");
+	pipline->loc_normal = glGetUniformLocation(pipline->program, "normal");
+	pipline->loc_color = glGetUniformLocation(pipline->program, "color");
+
+	pipline->loc_mat_MVP == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "mat_MVP");
+	pipline->loc_mat_modelview == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "mat_modelview");
+	pipline->loc_normal == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "normal");
+	pipline->loc_color == INVALID_UNIFORM_LOCATION && fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "color");
+
+	/*if (technique) {
 		pipline->technique = technique;
 	}
 	else {
@@ -58,16 +78,17 @@ void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_
 		technique_add_shader(pipline->technique, geo_vs, GL_VERTEX_SHADER, NULL);
 		technique_add_shader(pipline->technique, geo_fs, GL_FRAGMENT_SHADER, NULL);
 		technique_finalize(pipline->technique);
-	}
+	}*/
 }
 
 
 
 void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* buffer_list) {
-	//printf("render_buffer_list _ I = %d\n", glGetError());
-	//technique_set_uniform_matrix4fv(pipline->technique, "mat_MVP", GL_FALSE, pipline->mat_projection);
-	technique_enable(pipline->technique);
-	technique_set_uniform_matrix4fv(pipline->technique, "mat_MVP", GL_FALSE, pipline->mat_MVP);
+
+
+	glUseProgram(pipline->program);
+	glUniformMatrix4fv(pipline->loc_mat_MVP,1,GL_FALSE,  pipline->mat_MVP);
+	int x = glGetError();
 
 	GLfloat color[] = { 1.0,1.0,1.0 };
 	GLfloat normal_list[] = {
@@ -78,39 +99,17 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 		0.0, 0.0, -1.0,
 		0.0, 0.0, 1.0,
 	};
-	//technique_set_uniform_3fv(pipline->technique, "color", 1, color);
-	//technique_set_uniform_3fv(pipline->technique, "normal", 1, normal_list);
 
-	//technique_enable(pipline->technique);
-	//printf("E1 = %d\n", glGetError());
-	//draw buffer list
+	glUniform3fv(pipline->loc_color, 1, color);
+	glUniform3fv(pipline->loc_normal, 1, normal_list);
 	for (int i = 0; i < buffer_list->count; i++) {
 		for (int j = 0; j < 6; j++) {
 			struct FACE_BUFFER* facebuffer = &buffer_list->named_buffers[i].facebuffer[j];
-			//draw buffer
-			//draw_buffer(facebuffer);
 			if (facebuffer->face_material) {
-				//apply_face_material(facebuffer->face_material);
-				//technique_set_uniform_3fv(pipline->technique, "color", 1, facebuffer->face_material->main_color);
+				glUniform3fv(pipline->loc_color, 1, facebuffer->face_material->main_color);
 			}
-			else {
-				//technique_set_uniform_3fv(pipline->technique, "color", 1, color);
-			}
-			//technique_set_uniform_3fv(pipline->technique, "normal", 1, normal_list + j * 3);
 
-			
-		/*	;
-
-			glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
-			glVertexPointer(3, GL_FLOAT, 0, 0);
-			glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
-
-
-			glDisable(GL_VERTEX_ARRAY);*/
-
-
-			
-
+			glUniform3fv(pipline->loc_normal, 1, normal_list + j * 3);
 
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -118,23 +117,6 @@ void render_buffer_list(struct GEOMETRY_PIPLINE *pipline, struct BUFFER_LIST* bu
 			glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
 			glDisableVertexAttribArray(0);
 
-			//printf("E2 = %d\n", glGetError());
-
-			/*
-
-			glBindBuffer(GL_ARRAY_BUFFER, quad_buffer);
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, 0);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, 8);
-
-
-			;
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-			glDisableVertexAttribArray(0);
-			glDisableVertexAttribArray(1);
-
-			*/
 		}
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -219,15 +201,7 @@ void draw_buffer(struct FACE_BUFFER* facebuffer) {
 	glBindBuffer(GL_ARRAY_BUFFER, ((struct FACEBUFFER_GL_CONTEXT*)facebuffer->low_level_context)->vbo);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glDrawArrays(GL_TRIANGLES, 0, facebuffer->facecount * 6);
-	/*glBegin(GL_TRIANGLES);
-	GLfloat* pv = facebuffer->data;
-	for (int i = 0; i < facebuffer->facecount; i++) {
-		for (int j = 0; j < 6; j++) {
-			glVertex3fv(pv);
-			pv += 3;
-		}
-	}
-	glEnd();*/
+	
 
 }
 

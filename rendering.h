@@ -3,7 +3,8 @@
 //
 
 //#define _CRT_SECURE_NO_WARNINGS
-
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "model.h"
 #include "materials.h"
 //#include <pthread.h>
@@ -49,7 +50,13 @@ struct GEOMETRY_PIPLINE {
 	float mat_projection[16];
 	float mat_MVP[16];
 	struct FBO* render_target;
-	struct TECHNIQUE* technique;
+	//struct TECHNIQUE* technique;
+
+	GLuint program;
+	GLuint loc_mat_MVP;
+	GLuint loc_mat_modelview;
+	GLuint loc_normal;
+	GLuint loc_color;
 };
 
 //struct BUFFER_LIST* create_buffer_list_from_materials(struct BLOCK_MATERIAL_LIST* block_material_list) {
@@ -119,7 +126,8 @@ void feed_buffer_list(struct BUFFER_LIST* buffer_list);
 void apply_face_material(struct FACE_MATERIAL* face_material);
 
 
-void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target, struct TECHNIQUE* technique);
+//void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target, struct TECHNIQUE* technique);
+void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_target);
 
 void set_pipline_transforms(struct GEOMETRY_PIPLINE *pipline, struct CAMERA* camera);
 

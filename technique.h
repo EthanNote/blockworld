@@ -34,8 +34,8 @@ struct TECHNIQUE {
 	void* extra_data;
 };
 
-#define INIT_TECHINQUE(pTechnique) technique_init(pTechnique)
-#define INIT_TECHINQUE(pTechnique,extra_data_class) technique_init_ex(pTechnique,sizeof(extra_data_class))
+//#define INIT_TECHINQUE(pTechnique) technique_init(pTechnique)
+//#define INIT_TECHINQUE(pTechnique,extra_data_class) technique_init_ex(pTechnique,sizeof(extra_data_class))
 
 void technique_init(struct TECHNIQUE* technique);
 

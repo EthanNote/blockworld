@@ -25,7 +25,7 @@ struct GEOMETRY_PIPLINE geo_pipline;
 
 void init_fbos() {
 	
-	init_geometry_pipline(&geo_pipline, NULL, NULL);
+	init_geometry_pipline(&geo_pipline, NULL);
 	fbo_verify(geo_pipline.render_target);
 }
 
@@ -34,9 +34,9 @@ void init_fbos() {
 void init_techniques(){
 	program = glCreateProgram();
 	program_load(program, "quad.vs", "quad.fs", 0);
-	GLuint success = 1, Location = glGetUniformLocation(program, "depth_texture");
+	GLuint success = 1, Location = glGetUniformLocation(program, "quad_texture");
 	if (Location == INVALID_UNIFORM_LOCATION) {
-		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "depth_texture");
+		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "quad_texture");
 		success = 0;
 	}
 	if (success) {
@@ -65,10 +65,9 @@ void render_scene_trees(struct SCENE* scene) {
 
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(0);
+	
+	glUseProgram(geo_pipline.program);
 
-
-	technique_enable(geo_pipline.technique);
 	set_pipline_transforms(&geo_pipline, &scene->camera);
 
 	render_buffer_list(&geo_pipline, scene->crafting_buffer_list);
@@ -103,7 +102,7 @@ void pass_quad() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->color_buffer_list[1]);
+	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->color_buffer_list[0]);
 	   	
 	quad_render_default(&simple_quad);
 
