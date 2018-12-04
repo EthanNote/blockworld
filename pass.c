@@ -8,7 +8,7 @@
 #include <string.h>
 #include "fbo.h"
 #include "quad.h"
-
+#include "shader.h"
 
 #define USE_PROGRAM 1
 
@@ -18,11 +18,8 @@ int WindowHeight = 480;
 
 struct QUAD simple_quad;
 
-struct TECHNIQUE technique;
 
-extern const char* depth_texture_fs;
-extern const char* depth_texture_vs;
-
+GLuint program;
 
 struct GEOMETRY_PIPLINE geo_pipline;
 
@@ -32,14 +29,20 @@ void init_fbos() {
 	fbo_verify(geo_pipline.render_target);
 }
 
+#define INVALID_UNIFORM_LOCATION 0xffffffff
 
 void init_techniques(){
-	struct TECHNIQUE* tech = &technique;
-	technique_init(tech);
-	technique_add_shader(tech, depth_texture_vs, GL_VERTEX_SHADER, NULL);
-	technique_add_shader(tech, depth_texture_fs, GL_FRAGMENT_SHADER, NULL);
-	technique_finalize(tech);
-	technique_set_uniform_1i(tech, "depth_texture", 0);
+	program = glCreateProgram();
+	program_load(program, "quad.vs", "quad.fs", 0);
+	GLuint success = 1, Location = glGetUniformLocation(program, "depth_texture");
+	if (Location == INVALID_UNIFORM_LOCATION) {
+		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "depth_texture");
+		success = 0;
+	}
+	if (success) {
+		glUseProgram(program);
+		glUniform1i(Location, 0);
+	}
 }
 
 
@@ -77,7 +80,9 @@ int pass_init() {
 	
 	init_fbos();
 	init_techniques();
+
 	quad_create_default(&simple_quad);
+	quad_set_program(&simple_quad, program);
 
 	return 1;
 }
@@ -98,9 +103,8 @@ void pass_quad() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->color_buffer_list[0]);
+	glBindTexture(GL_TEXTURE_2D, geo_pipline.render_target->color_buffer_list[1]);
 	   	
-	technique_enable(&technique);
 	quad_render_default(&simple_quad);
 
 }

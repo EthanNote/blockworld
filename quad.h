@@ -4,6 +4,8 @@
 
 struct QUAD {
 	GLuint vbo;
+	GLuint vao;
+	GLuint program;
 };
 
 
@@ -13,5 +15,7 @@ struct QUAD_DEFAULT {
 
 
 void quad_create_default(struct QUAD* quad);
+
+void quad_set_program(struct QUAD* quad, GLuint program);
 
 void quad_render_default(struct QUAD* quad);
