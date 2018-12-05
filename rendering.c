@@ -57,7 +57,7 @@ void init_geometry_pipline(struct GEOMETRY_PIPLINE *pipline, struct FBO* render_
 	}
 
 	pipline->program = glCreateProgram();
-	program_load(pipline->program, "geo.vs", "geo.fs", 0);
+	program_load(pipline->program, "shader/geo.vs", "shader/geo.fs", 0);
 
 	pipline->loc_mat_MVP = glGetUniformLocation(pipline->program, "mat_MVP");
 	pipline->loc_mat_modelview = glGetUniformLocation(pipline->program, "mat_modelview");

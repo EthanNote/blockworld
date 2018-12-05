@@ -33,7 +33,7 @@ void init_fbos() {
 
 void init_techniques(){
 	program = glCreateProgram();
-	program_load(program, "quad.vs", "quad.fs", 0);
+	program_load(program, "shader/quad.vs", "shader/quad.fs", 0);
 	GLuint success = 1, Location = glGetUniformLocation(program, "quad_texture");
 	if (Location == INVALID_UNIFORM_LOCATION) {
 		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", "quad_texture");
